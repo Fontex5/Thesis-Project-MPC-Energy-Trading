@@ -8,6 +8,11 @@ pub mod general_functions;
 
 fn main() {
 
+    let mut list_of_users:Vec<User> = Vec::new();
+    for i in 1..=20 {
+        list_of_users.push(User::initialize_user(i));
+    }
+
     let array_of_appliances: [Appliances; 5] = [
         Appliances::HeatPump(Device::set_device(30.0, 1440)),
         Appliances::Refrigerator(Device::set_device(0.5, 1440)),
@@ -16,11 +21,14 @@ fn main() {
         Appliances::Dishwashser(Device::set_device(1.5, 120))
     ];
 
-    let mut user1 = User::initialize_user(1);
-
     let time_interval = general_functions::general_functions::get_time_interval();
 
-    calculate_saved_energy_for_user(&mut user1, time_interval, &array_of_appliances);
+    for user in &mut list_of_users{
+        calculate_saved_energy_for_user(user, time_interval, &array_of_appliances);
+    }
+    
 
-    println!("User{} has saved {}KWh",user1.get_user_id(),user1.get_saved_amount_of_energy());
+    for user in &list_of_users{
+        println!("User{} has saved {}KWh",user.get_user_id(),user.get_saved_amount_of_energy());
+    }
 }
