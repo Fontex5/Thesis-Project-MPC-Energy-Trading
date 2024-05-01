@@ -21,14 +21,19 @@ fn main() {
         Appliances::Dishwashser(Device::set_device(1.5, 120))
     ];
 
-    let time_interval = general_functions::general_functions::get_time_interval();
+    let time_interval = energy_functions::get_time_interval();
 
     for user in &mut list_of_users{
-        calculate_saved_energy_for_user(user, time_interval, &array_of_appliances);
+        energy_functions::calculate_saved_energy_for_user(user, time_interval, &array_of_appliances);
+
+        auction_functions::randomly_set_price_for_energy_per_user(user);
+        auction_functions::calculate_price_per_energy(user);
     }
     
 
     for user in &list_of_users{
+        println!("----------------------------------------------");
         println!("User{} has saved {}KWh",user.get_user_id(),user.get_saved_amount_of_energy());
+        println!("with total price {}$ which is {} Kwh/$",user.get_price_for_energy(),user.get_price_per_energy());
     }
 }
