@@ -40,7 +40,7 @@ pub mod user {
 
         pub fn set_price_per_energy(&mut self)
         {
-            self.price_per_energy =  self.saved_amount_energy / (self.price_for_energy as f32);
+            self.price_per_energy =  (self.price_for_energy as f32) / self.saved_amount_energy;
         }
 
         pub fn get_price_per_energy(&self) -> f32

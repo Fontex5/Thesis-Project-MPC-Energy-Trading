@@ -98,7 +98,7 @@ pub mod general_functions
             let (mut left, mut right, mut i) = (0, 0, 0);
           
             while left < l_arr.len() && right < r_arr.len() {
-              if l_arr[left].get_price_per_energy() >= r_arr[right].get_price_per_energy() {
+              if l_arr[left].get_price_per_energy() <= r_arr[right].get_price_per_energy() {
                 sorted[i] = l_arr[left];
                 i += 1;
                 left += 1;
