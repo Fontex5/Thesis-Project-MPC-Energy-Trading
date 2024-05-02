@@ -1,9 +1,9 @@
-use home_appliances::home_appliances::{Appliances,Device};
-use user::user::User;
-use general_functions::general_functions::*;
+use home_appliances::{Appliances,Device};
+use crate::stakeholders::user::User;
+use general_functions::*;
 
 pub mod home_appliances;
-pub mod user;
+pub mod stakeholders;
 pub mod general_functions;
 
 fn main() {
