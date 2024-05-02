@@ -1,4 +1,5 @@
 pub mod user {
+    #[derive(Copy, Clone)]
     pub struct User {
         id : i32,
         saved_amount_energy: f32,

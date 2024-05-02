@@ -49,6 +49,7 @@ pub mod general_functions
 
     pub mod auction_functions{
         use crate::user::user::User;
+        use super::sorting::sort;
         use rand::Rng;
 
         pub fn randomly_set_price_for_energy_per_user(user: &mut User){
@@ -62,6 +63,62 @@ pub mod general_functions
                 user.set_price_per_energy();
             }
         }
+
+        pub fn announce_the_winner(list_of_users:&mut Vec<User>)
+        {
+            sort(list_of_users);
+
+            println!("*********************************************************");
+            println!("The winner is User{}", list_of_users[0].get_user_id());
+        }
+    }
+
+    pub mod sorting
+    {
+        use crate::user::user::User;
+
+        pub fn sort(vector: &mut [User]) {
+            let middle = vector.len() / 2;
+            if vector.len() < 2 {
+              return; // No need to sort vectors with one element
+            }
+          
+            let mut sorted = vector.to_vec();
+          
+            sort(&mut vector[..middle]);
+            sort(&mut vector[middle..]);
+          
+            merge(&vector[..middle], &vector[middle..], &mut sorted);
+          
+            vector.copy_from_slice(&sorted); // Copy the sorted result into original vector
+          }
+          
+          fn merge(l_arr: &[User], r_arr: &[User], sorted: &mut Vec<User>) {
+            // Current loop position in left half, right half, and sorted vector
+            let (mut left, mut right, mut i) = (0, 0, 0);
+          
+            while left < l_arr.len() && right < r_arr.len() {
+              if l_arr[left].get_price_per_energy() >= r_arr[right].get_price_per_energy() {
+                sorted[i] = l_arr[left];
+                i += 1;
+                left += 1;
+              } else {
+                sorted[i] = r_arr[right];
+                i += 1;
+                right += 1;
+              }
+            }
+          
+            if left < l_arr.len() {
+              // If there is anything left in the left half append it after sorted members
+              sorted[i..].copy_from_slice(&l_arr[left..]);
+            }
+          
+            if right < r_arr.len() {
+              // If there is anything left in the right half append it after sorted members
+              sorted[i..].copy_from_slice(&r_arr[right..]);
+            }
+          }
     }
 }
 

@@ -36,4 +36,6 @@ fn main() {
         println!("User{} has saved {}KWh",user.get_user_id(),user.get_saved_amount_of_energy());
         println!("with total price {}$ which is {} Kwh/$",user.get_price_for_energy(),user.get_price_per_energy());
     }
+
+    auction_functions::announce_the_winner(&mut list_of_users);
 }
