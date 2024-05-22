@@ -37,7 +37,8 @@ impl Appliances
             Self::Refrigerator(device) => device.get_average_consumption(),
             Self::ElectricVehicle(device) => device.get_average_consumption(),
             Self::WashingMachine(device) => device.get_average_consumption(),
-            Self::Dishwashser(device) => device.get_average_consumption()
+            Self::Dishwashser(device) => device.get_average_consumption(),
+            Self::CookingStove(device) => device.get_average_consumption(),
         }
     }
 
@@ -49,6 +50,7 @@ impl Appliances
             Self::ElectricVehicle(_) => String::from("Electric Vehicle"),
             Self::WashingMachine(_) => String::from("Washing Machine"),
             Self::Dishwashser(_) => String::from("Dishwashser"),
+            Self::CookingStove(_) => String::from("CookingStove"),
         }
     }
 }

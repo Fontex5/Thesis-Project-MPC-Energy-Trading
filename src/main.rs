@@ -13,15 +13,16 @@ fn main() {
         list_of_users.push(User::initialize_user(i));
     }
 
-    let array_of_appliances: [Appliances; 5] = [
-        Appliances::HeatPump(Device::set_device(30.0, 1440)),
-        Appliances::Refrigerator(Device::set_device(0.5, 1440)),
-        Appliances::ElectricVehicle(Device::set_device(4.4, 30)),
-        Appliances::WashingMachine(Device::set_device(1.0, 60)),
-        Appliances::Dishwashser(Device::set_device(1.5, 120))
+    let array_of_appliances: [Appliances; 6] = [
+        Appliances::HeatPump(Device::set_device(3000, 1440)),
+        Appliances::Refrigerator(Device::set_device(150, 400)),
+        Appliances::ElectricVehicle(Device::set_device(100, 45)), //Average commuting distance in Denmark 22.2 kilometers, 0.346kWh for 1.6Km, 50Km average speed
+        Appliances::WashingMachine(Device::set_device(1000, 60)),
+        Appliances::Dishwashser(Device::set_device(1500, 120)),
+        Appliances::CookingStove(Device::set_device(1500, 30))
     ];
     
-    let mut aggregator = Aggregator::initialize_aggregator(100.0, 20.0); 
+    let mut aggregator = Aggregator::initialize_aggregator(100.0, 2.60); 
 
     let time_interval = energy_functions::get_time_interval();
 
