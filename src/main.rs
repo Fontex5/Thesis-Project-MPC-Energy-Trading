@@ -33,13 +33,13 @@ fn main() {
         auction_functions::calculate_price_per_energy(user);
     }
     //To remove users with no saved energy
-    //list_of_users.retain(|&x| x.get_saved_amount_of_energy() != 0.0); 
+    list_of_users.retain(|&x| x.get_saved_amount_of_energy() != 0.0); 
     
 
     for user in &list_of_users{
         println!("----------------------------------------------");
-        println!("User{} has saved {}KWh",user.get_user_id(),user.get_saved_amount_of_energy());
-        println!("with total price {}$ which is {} Kwh/$",user.get_price_for_energy(),user.get_price_per_energy());
+        println!("User{} has saved {}kWh",user.get_user_id(),user.get_saved_amount_of_energy());
+        println!("with total price {} DKK which is {} kWh/DKK",user.get_price_for_energy(),user.get_price_per_energy());
     }
 
     sorting::sort(&mut list_of_users);

@@ -1,21 +1,21 @@
 pub struct Device
 {
-    average_consumption: f32,  //In KWh
+    average_consumption_in_watts: i32,  //In KWh
     average_time_usage_minutes: i32,  //In Minutes
 }
 
 impl Device
 {
-    pub fn set_device(consumption:f32, avg_time:i32 ) -> Self
+    pub fn set_device(consumption_in_watts:i32, avg_time:i32 ) -> Self
     {
         Self{
-            average_consumption: consumption,
+            average_consumption_in_watts: consumption_in_watts,
             average_time_usage_minutes: avg_time
         }
     }
 
-    pub fn get_average_consumption(&self)->f32{
-        self.average_consumption
+    pub fn get_average_consumption(&self)->i32{
+        self.average_consumption_in_watts
     }
 }
 
@@ -26,11 +26,12 @@ pub enum Appliances
     ElectricVehicle(Device),
     WashingMachine(Device),
     Dishwashser(Device),
+    CookingStove(Device)
 }
 
 impl Appliances
 {
-    pub fn get_average_consumption(&self) ->f32
+    pub fn get_average_consumption(&self) ->i32
     {
         match self {
             Self::HeatPump(device) => device.get_average_consumption(),

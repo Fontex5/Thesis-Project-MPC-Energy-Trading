@@ -44,7 +44,7 @@ impl Aggregator
             }
         }
 
-        println!("Full charge of battery cost {}$", total_price);
+        println!("Full charge of battery cost {} DKK", total_price);
     }
 
     fn charge_battery(&mut self, received_charge:f32)
@@ -58,7 +58,7 @@ impl Aggregator
 
             if received_charge > needed_energy{
                 let exceeded_energy = received_charge - needed_energy;
-                println!("Battery is full now and {}Kwh is exceeded",exceeded_energy);
+                println!("Battery is full now and {}kWh is exceeded",exceeded_energy);
                 self.battery_percentage = 100;
             }
             else{

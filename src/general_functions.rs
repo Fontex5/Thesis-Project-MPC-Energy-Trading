@@ -40,10 +40,11 @@ pub mod energy_functions{
 
     fn saved_amount_of_energy_in(device: &Appliances, time_interval: i32) -> f32
      {    
-        let an_hour_in_minuts = 60;
-        let period: f32 = (time_interval as f32)/ (an_hour_in_minuts as f32);
+        let an_hour_in_minuts = 60.0;
+        let period: f32 = (time_interval as f32)/ an_hour_in_minuts;
     
-      period * device.get_average_consumption()
+        let saved_watts = period * (device.get_average_consumption() as f32);
+        saved_watts / 1000.0
     }
 }
 
@@ -54,7 +55,7 @@ pub mod auction_functions{
 
     pub fn randomly_set_price_for_energy_per_user(user: &mut User)
     {
-        let price = rand::thread_rng().gen_range(10..=100);
+        let price = rand::thread_rng().gen_range(1..=10);  
         user.set_price_for_energy(price);
     }
 
