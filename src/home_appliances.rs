@@ -1,7 +1,7 @@
 pub struct Device
 {
-    average_consumption_in_watts: i32,  //In KWh
-    average_time_usage_minutes: i32,  //In Minutes
+    average_consumption_in_watts: i32, 
+    average_time_usage_minutes: i32,  
 }
 
 impl Device
