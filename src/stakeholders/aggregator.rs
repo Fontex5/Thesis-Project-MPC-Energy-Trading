@@ -1,4 +1,7 @@
 use std::io;
+use crate::home_appliances::Appliances;
+use crate::general_functions::energy_functions;
+
 use super::user::User;
 
 pub struct Aggregator
@@ -104,4 +107,18 @@ pub fn set_battery_capacity() -> f32
         Err(_) => 100.0, 
     };
     battery_cap
+}
+
+pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances]) -> (f32 ,f32)
+{
+    let mut total_saved_amount:f32 = 0.0;
+    let mut total_consumed_amount:f32 = 0.0;
+
+    for user in list_of_users{
+        energy_functions::calculate_saved_energy_for_user(user, 60, &array_of_appliances);
+        total_saved_amount += user.get_saved_amount_of_energy();
+        total_consumed_amount += user.get_consumed_amount_of_energy();
+    }
+
+    (total_saved_amount,total_consumed_amount)
 }

@@ -19,17 +19,19 @@ pub mod energy_functions{
     pub fn calculate_saved_energy_for_user(consumer: &mut User, time_interval:i32, appliances:&[Appliances])
     {
         let mut total_saved_energy = 0.0;
+        let mut total_consumption: f32 = 0.0;
     
         for item in appliances{
             if randomly_decide_usage_of_device() {
-                continue;
+                total_consumption += energy_consumption_of_device_in(&item,time_interval);
             }
             else {
-                total_saved_energy += saved_amount_of_energy_in(&item,time_interval);
+                total_saved_energy += energy_consumption_of_device_in(&item,time_interval);
             }
         }
     
         consumer.set_saved_amount_energy(total_saved_energy);
+        consumer.set_consumed_amount_energy(total_consumption);
     }
 
     fn randomly_decide_usage_of_device() -> bool
@@ -38,7 +40,7 @@ pub mod energy_functions{
         decision //If true the user will use the device
     }
 
-    fn saved_amount_of_energy_in(device: &Appliances, time_interval: i32) -> f32
+    fn energy_consumption_of_device_in(device: &Appliances, time_interval: i32) -> f32
      {    
         let an_hour_in_minuts = 60.0;
         let period: f32 = (time_interval as f32)/ an_hour_in_minuts;
