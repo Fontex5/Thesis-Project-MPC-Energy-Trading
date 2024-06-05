@@ -1,5 +1,5 @@
 pub mod energy_functions{
-    use crate::home_appliances::Appliances;
+    use crate::devices_and_equipments::home_appliances::Appliances;
     use crate::stakeholders::user::User;
     use std::io;
     use rand::Rng;
@@ -45,8 +45,8 @@ pub mod energy_functions{
         let an_hour_in_minuts = 60.0;
         let period: f32 = (time_interval as f32)/ an_hour_in_minuts;
     
-        let saved_watts = period * (device.get_average_consumption() as f32);
-        saved_watts / 1000.0
+        let consumed_watts = period * (device.get_average_consumption() as f32);
+        consumed_watts / 1000.0
     }
 }
 

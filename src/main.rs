@@ -1,9 +1,8 @@
-use home_appliances::{Appliances,Device};
-use stakeholders::aggregator;
-use crate::stakeholders::{user::User,aggregator::Aggregator};
-use general_functions::*;
+use devices_and_equipments::home_appliances::{Appliances,Device};
+use stakeholders::{user::User,aggregator::Aggregator,aggregator};
+//use general_functions::*;
 
-pub mod home_appliances;
+pub mod devices_and_equipments;
 pub mod stakeholders;
 pub mod general_functions;
 
