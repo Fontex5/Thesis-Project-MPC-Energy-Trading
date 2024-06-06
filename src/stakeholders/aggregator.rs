@@ -1,5 +1,5 @@
 use std::io;
-use crate::devices_and_equipments::home_appliances::Appliances;
+use crate::devices_and_equipments::{home_appliances::Appliances,pv_panels};
 use crate::general_functions::energy_functions;
 
 use super::user::User;
@@ -116,6 +116,28 @@ pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[
 
     for user in list_of_users{
         energy_functions::calculate_saved_energy_for_user(user, 60, &array_of_appliances);
+        total_saved_amount += user.get_saved_amount_of_energy();
+        total_consumed_amount += user.get_consumed_amount_of_energy();
+    }
+
+    (total_saved_amount,total_consumed_amount)
+}
+
+pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances], produced_energy:f32, number_of_houses_with_pv_panels:i32) -> (f32 ,f32)
+{
+    let mut total_saved_amount:f32 = 0.0;
+    let mut total_consumed_amount:f32 = 0.0;
+    let mut number_of_considered_house_with_pv = 0;
+
+    for user in list_of_users{
+        energy_functions::calculate_saved_energy_for_user(user, 60, &array_of_appliances);
+        
+        if number_of_considered_house_with_pv < number_of_houses_with_pv_panels 
+        {
+            pv_panels::deduct_produced_energy_from_consumption(user, produced_energy);
+            number_of_considered_house_with_pv += 1;
+        } 
+        
         total_saved_amount += user.get_saved_amount_of_energy();
         total_consumed_amount += user.get_consumed_amount_of_energy();
     }
