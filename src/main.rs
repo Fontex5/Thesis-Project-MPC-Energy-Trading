@@ -1,6 +1,5 @@
-use devices_and_equipments::home_appliances::{Appliances,Device};
+use devices_and_equipments::{home_appliances::{Appliances,Device}, pv_panels::PVPanel};
 use stakeholders::{user::User,aggregator::Aggregator,aggregator};
-//use general_functions::*;
 
 pub mod devices_and_equipments;
 pub mod stakeholders;
@@ -8,8 +7,9 @@ pub mod general_functions;
 
 fn main() {
 
+    let number_of_houses_in_neighborhood = 50;
     let mut list_of_users:Vec<User> = Vec::new();
-    for i in 1..=50 {
+    for i in 1..=number_of_houses_in_neighborhood {
         list_of_users.push(User::initialize_user(i));
     }
 
@@ -22,17 +22,38 @@ fn main() {
         Appliances::CookingStove(Device::set_device(1500, 30))
     ];
     
-    //let mut aggregator_c = Aggregator::initialize_aggregator(100.0, 2.60); 
+    //let mut aggregator_c = Aggregator::initialize_aggregator(100.0, 2.60);
+    let pv_panels_in_neighborhood = PVPanel::equip_neighborhood_with_pv_panels(10, 300.0); 
+    let potential_production_energy = pv_panels_in_neighborhood.calculate_produced_energy(60);
+    let number_of_houses_with_pv_panels:i32 = ((number_of_houses_in_neighborhood as f32) * 0.2) as i32;   //The percentage of houses in the neighborhood with PV panels
 
-    let mut total_saved_energy:f32 = 0.0;
-    let mut total_consumed_energy:f32 = 0.0;
+    let mut total_saved_energy_without_pv:f32 = 0.0;
+    let mut total_consumed_energy_without_pv:f32 = 0.0;
 
     for _hour in 1..=24 {
         let mut saved:f32 = 0.0;
         let mut consumed:f32 = 0.0;
+
         (saved,consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances);
-        total_saved_energy += saved;
-        total_consumed_energy += consumed;
+        total_consumed_energy_without_pv += consumed;
+        total_saved_energy_without_pv += saved;    
+    }
+
+    let mut total_saved_energy_with_pv:f32 = 0.0;
+    let mut total_consumed_energy_with_pv:f32 = 0.0;
+
+    for hour in 1..=24 {
+        let mut saved:f32 = 0.0;
+        let mut consumed:f32 = 0.0;
+        let mut produced_energy:f32 = 0.0;
+
+        if PVPanel::can_pv_panel_produce_energy(hour) {
+            let mut produced_energy:f32 = potential_production_energy;
+        }
+
+        (saved,consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances, produced_energy, number_of_houses_with_pv_panels);
+        total_saved_energy_with_pv += saved;
+        total_consumed_energy_with_pv += consumed;    
     }
 
     //let time_interval = energy_functions::get_time_interval();
