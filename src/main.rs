@@ -31,29 +31,29 @@ fn main() {
     let mut total_consumed_energy_without_pv:f32 = 0.0;
 
     for _hour in 1..=24 {
-        let mut saved:f32 = 0.0;
-        let mut consumed:f32 = 0.0;
+        let mut _saved:f32 = 0.0;
+        let mut _consumed:f32 = 0.0;
 
-        (saved,consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances);
-        total_consumed_energy_without_pv += consumed;
-        total_saved_energy_without_pv += saved;    
+        (_saved,_consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances);
+        total_consumed_energy_without_pv += _consumed;
+        total_saved_energy_without_pv += _saved;    
     }
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
 
     for hour in 1..=24 {
-        let mut saved:f32 = 0.0;
-        let mut consumed:f32 = 0.0;
+        let mut _saved:f32 = 0.0;
+        let mut _consumed:f32 = 0.0;
         let mut produced_energy:f32 = 0.0;
 
         if PVPanel::can_pv_panel_produce_energy(hour) {
-            let mut produced_energy:f32 = potential_production_energy;
+            produced_energy = potential_production_energy;
         }
 
-        (saved,consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances, produced_energy, number_of_houses_with_pv_panels);
-        total_saved_energy_with_pv += saved;
-        total_consumed_energy_with_pv += consumed;    
+        (_saved,_consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances, produced_energy, number_of_houses_with_pv_panels);
+        total_saved_energy_with_pv += _saved;
+        total_consumed_energy_with_pv += _consumed;    
     }
 
     //let time_interval = energy_functions::get_time_interval();
@@ -80,6 +80,7 @@ fn main() {
     
     //aggregator.charge_the_battery(list_of_users);
 
-    println!("Total amount of consumed energy: {}kWh\nTotal amount of saved energy: {}kWh", total_consumed_energy, total_saved_energy);
+    println!("Total amount of consumed energy without PV panels: {}kWh\nTotal amount of saved energy without PV panels: {}kWh", total_consumed_energy_without_pv, total_saved_energy_without_pv);
+    println!("Total amount of consumed energy with PV panels: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_pv, total_saved_energy_with_pv);
 
 }
