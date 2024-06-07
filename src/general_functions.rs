@@ -57,15 +57,8 @@ pub mod auction_functions{
 
     pub fn randomly_set_price_for_energy_per_user(user: &mut User)
     {
-        let price = rand::thread_rng().gen_range(1..=10);  
+        let price = rand::thread_rng().gen_range(0.0..=6.0);  
         user.set_price_for_energy(price);
-    }
-
-    pub fn calculate_price_per_energy(user:&mut User)
-    {
-        if user.get_saved_amount_of_energy() != 0.0 {
-            user.set_price_per_energy();
-        }
     }
 
     pub fn announce_the_winner(list_of_users:&mut Vec<User>)
