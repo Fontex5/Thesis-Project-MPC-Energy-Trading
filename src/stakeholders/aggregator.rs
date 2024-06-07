@@ -28,10 +28,15 @@ impl Aggregator
         self.price_received_by_elec_provider = price;
     }
 
+    pub fn get_provider_price(&self) ->f32
+    {
+        self.price_received_by_elec_provider
+    }
+
     pub fn charge_the_battery(&mut self, list_of_users:Vec<User>)
     {
         let mut i = 0;
-        let mut total_price = 0;
+        let mut total_price = 0.0;
 
         while self.battery_percentage != 100
         {
@@ -43,7 +48,7 @@ impl Aggregator
             else {
                 let required_energy = self.calculate_reuqired_energy_for_full_battery();
                 self.charge_battery(required_energy);
-                total_price += (required_energy * self.price_received_by_elec_provider) as i32;
+                total_price += required_energy * self.price_received_by_elec_provider;
             }
         }
 

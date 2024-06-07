@@ -4,7 +4,7 @@ pub struct User {
     saved_amount_energy: f32,
     consumed_amount_energy:f32,
     produced_amount_energy:f32,
-    price_for_energy: i32,
+    price_for_energy: f32,
     price_per_energy: f32,
 }
 
@@ -15,7 +15,7 @@ impl User{
         Self {  id, saved_amount_energy: 0.0,
                 consumed_amount_energy: 0.0,
                 produced_amount_energy: 0.0,
-                price_for_energy:0, 
+                price_for_energy:0.0, 
                 price_per_energy:0.0 }
     }
 
@@ -54,19 +54,19 @@ impl User{
         self.id
     }
 
-    pub fn set_price_for_energy(&mut self, price:i32)
+    pub fn set_price_for_energy(&mut self, price:f32)
     {
         self.price_for_energy = price;
     }
 
-    pub fn get_price_for_energy(&self) ->i32
+    pub fn get_price_for_energy(&self) ->f32
     {
         self.price_for_energy
     }
 
     pub fn set_price_per_energy(&mut self)
     {
-        self.price_per_energy =  (self.price_for_energy as f32) / self.produced_amount_energy;
+        self.price_per_energy =  self.price_for_energy / self.produced_amount_energy;
     }
 
     pub fn get_price_per_energy(&self) -> f32

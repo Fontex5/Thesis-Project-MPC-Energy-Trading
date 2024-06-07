@@ -1,5 +1,6 @@
 use devices_and_equipments::{home_appliances::{Appliances,Device}, pv_panels::PVPanel};
 use stakeholders::{user::User,aggregator::Aggregator,aggregator};
+use general_functions::auction_functions;
 
 pub mod devices_and_equipments;
 pub mod stakeholders;
@@ -22,7 +23,7 @@ fn main() {
         Appliances::CookingStove(Device::set_device(1500, 30))
     ];
     
-    //let mut aggregator_c = Aggregator::initialize_aggregator(100.0, 2.60);
+    let neighborhood_aggregator = Aggregator::initialize_aggregator(100.0, 2.60);
     let pv_panels_in_neighborhood = PVPanel::equip_neighborhood_with_pv_panels(10, 300.0); 
     let potential_production_energy = pv_panels_in_neighborhood.calculate_produced_energy(60);
     let number_of_houses_with_pv_panels:i32 = ((number_of_houses_in_neighborhood as f32) * 0.2) as i32;   //The percentage of houses in the neighborhood with PV panels
@@ -38,6 +39,8 @@ fn main() {
         total_consumed_energy_without_pv += _consumed;
         total_saved_energy_without_pv += _saved;    
     }
+    
+    let cost_of_supplying_consumed_energy_without_pv = total_consumed_energy_without_pv * neighborhood_aggregator.get_provider_price();
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
@@ -58,17 +61,18 @@ fn main() {
         total_consumed_energy_with_pv += _consumed;
         total_surplus_production += _surplus_produced;    
     }
+    //To remove users with no surplus produced energy
+    list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);
 
     //let time_interval = energy_functions::get_time_interval();
 
-    /*for user in &mut list_of_users{
-        energy_functions::calculate_saved_energy_for_user(user, time_interval, &array_of_appliances);
-
+    for user in &mut list_of_users
+    {
         auction_functions::randomly_set_price_for_energy_per_user(user);
-        auction_functions::calculate_price_per_energy(user);
-    }*/
-    //To remove users with no saved energy
-    //list_of_users.retain(|&x| x.get_saved_amount_of_energy() != 0.0); 
+        user.set_price_per_energy();
+    }
+    
+     
     
 
     /*for user in &list_of_users{
@@ -84,6 +88,7 @@ fn main() {
     //aggregator.charge_the_battery(list_of_users);
 
     println!("Total amount of consumed energy without PV panels: {}kWh\nTotal amount of saved energy without PV panels: {}kWh", total_consumed_energy_without_pv, total_saved_energy_without_pv);
+    println!("Supplying the consumed energy costs {}DKK using the energy provider",cost_of_supplying_consumed_energy_without_pv);
     println!("==========================================================================================");
     println!("Total amount of consumed energy with PV panels: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_pv, total_saved_energy_with_pv);
     println!("And, the total remainded produced energy from the PV panels is: {}kWh",total_surplus_production);
