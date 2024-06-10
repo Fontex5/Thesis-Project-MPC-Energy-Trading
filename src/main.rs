@@ -1,6 +1,6 @@
 use devices_and_equipments::{home_appliances::{Appliances,Device}, pv_panels::PVPanel};
 use stakeholders::{user::User,aggregator::Aggregator,aggregator};
-use general_functions::auction_functions;
+use general_functions::{auction_functions,sorting};
 
 pub mod devices_and_equipments;
 pub mod stakeholders;
@@ -72,25 +72,19 @@ fn main() {
         user.set_price_per_energy();
     }
     
-     
-    
 
-    /*for user in &list_of_users{
-        println!("----------------------------------------------");
-        println!("User{} has saved {}kWh",user.get_user_id(),user.get_saved_amount_of_energy());
-        println!("with total price {} DKK which is {} kWh/DKK",user.get_price_for_energy(),user.get_price_per_energy());
-    }*/
-
-    //sorting::sort(&mut list_of_users);
+    sorting::sort(&mut list_of_users);
 
     //auction_functions::announce_the_winner(&mut list_of_users);
     
-    //aggregator.charge_the_battery(list_of_users);
+    let cost_of_supplying_consumed_energy_with_pv = neighborhood_aggregator.supply_demand_with_pv(list_of_users,total_consumed_energy_with_pv);
 
+    println!("==========================================================================================");
     println!("Total amount of consumed energy without PV panels: {}kWh\nTotal amount of saved energy without PV panels: {}kWh", total_consumed_energy_without_pv, total_saved_energy_without_pv);
     println!("Supplying the consumed energy costs {}DKK using the energy provider",cost_of_supplying_consumed_energy_without_pv);
     println!("==========================================================================================");
     println!("Total amount of consumed energy with PV panels: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_pv, total_saved_energy_with_pv);
     println!("And, the total remainded produced energy from the PV panels is: {}kWh",total_surplus_production);
+    println!("With local market and electricity provider, the cost is: {}DKK",cost_of_supplying_consumed_energy_with_pv);
 
 }
