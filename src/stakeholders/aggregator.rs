@@ -33,26 +33,26 @@ impl Aggregator
         self.price_received_by_elec_provider
     }
 
-    pub fn charge_the_battery(&mut self, list_of_users:Vec<User>)
+    pub fn supply_demand_with_pv(&self, list_of_users:Vec<User>,mut demanded_energy:f32) -> f32
     {
         let mut i = 0;
         let mut total_price = 0.0;
 
-        while self.battery_percentage != 100
+        while demanded_energy != 0.0
         {
             if list_of_users[i].get_price_per_energy() < self.price_received_by_elec_provider {
-                self.charge_battery(list_of_users[i].get_saved_amount_of_energy());
+                demanded_energy -= list_of_users[i].get_produced_amount_of_energy();
+                //list_of_users[i].set_produced_amount_energy(0.0);
                 total_price += list_of_users[i].get_price_for_energy();
                 i += 1; 
             }
             else {
-                let required_energy = self.calculate_reuqired_energy_for_full_battery();
-                self.charge_battery(required_energy);
-                total_price += required_energy * self.price_received_by_elec_provider;
+                total_price += demanded_energy * self.price_received_by_elec_provider;
+                demanded_energy = 0.0;
             }
         }
 
-        println!("Full charge of battery cost {} DKK", total_price);
+        total_price
     }
 
     fn charge_battery(&mut self, received_charge:f32)
