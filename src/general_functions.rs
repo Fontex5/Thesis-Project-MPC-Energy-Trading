@@ -16,17 +16,39 @@ pub mod energy_functions{
         time_interval
     }
 
-    pub fn calculate_saved_energy_for_user(consumer: &mut User, time_interval:i32, appliances:&[Appliances])
+    pub fn is_device_already_in_use(user_id:i32, device:&Appliances, array_of_devices_in_use:&[[bool;6]])-> bool
+    {
+        let device_index = match device.get_appliance_name().as_str() {
+            "Heat Pump" => 0,
+            "Refrigerator" => 1,
+            "Electric Vehicle" => 2,
+            "Washing Machine" => 3,
+            "Dishwashser" => 4,
+            "CookingStove" => 5,
+        };
+
+        array_of_devices_in_use[user_id as usize][device_index]
+    }
+
+    pub fn calculate_saved_energy_for_user(consumer: &mut User, hour:i32, appliances:&[Appliances],array_of_devices_in_use:&[[bool;6]])
     {
         let mut total_saved_energy = 0.0;
         let mut total_consumption: f32 = 0.0;
     
         for item in appliances{
-            if randomly_decide_usage_of_device() {
-                total_consumption += energy_consumption_of_device_in(&item,time_interval);
+            if is_device_already_in_use(consumer.get_user_id(), item, array_of_devices_in_use)
+            {
+                //Next device
+                continue;
             }
-            else {
-                total_saved_energy += energy_consumption_of_device_in(&item,time_interval);
+            else 
+            {
+                if randomly_decide_usage_of_device(item,hour) {
+                    total_consumption += energy_consumption_of_device_in(&item,time_interval);
+                }
+                else {
+                    total_saved_energy += energy_consumption_of_device_in(&item,time_interval);
+                }
             }
         }
     
@@ -34,9 +56,10 @@ pub mod energy_functions{
         consumer.set_consumed_amount_energy(total_consumption);
     }
 
-    fn randomly_decide_usage_of_device() -> bool
+    fn randomly_decide_usage_of_device(item:&Appliances,hour:i32) -> bool
     {
-        let decision = rand::thread_rng().gen_bool(0.5);
+        let mut generator = rand::thread_rng();
+        let decision = generator.gen_bool(0.5);
         decision //If true the user will use the device
     }
 

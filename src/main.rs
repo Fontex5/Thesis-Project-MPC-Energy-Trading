@@ -8,10 +8,10 @@ pub mod general_functions;
 
 fn main() {
 
-    let number_of_houses_in_neighborhood = 50;
+    const NUMBER_OF_HOUSES_IN_NEIGHBORHOOD: usize = 50;
     let mut list_of_users:Vec<User> = Vec::new();
-    for i in 1..=number_of_houses_in_neighborhood {
-        list_of_users.push(User::initialize_user(i));
+    for i in 1..= NUMBER_OF_HOUSES_IN_NEIGHBORHOOD {
+        list_of_users.push(User::initialize_user(i as i32));
     }
 
     let array_of_appliances: [Appliances; 6] = [
@@ -23,19 +23,21 @@ fn main() {
         Appliances::CookingStove(Device::set_device(1500, 30))
     ];
     
+    let mut array_of_devices_in_use = [[false,false,false,false,false,false]; NUMBER_OF_HOUSES_IN_NEIGHBORHOOD];
+    
     let neighborhood_aggregator = Aggregator::initialize_aggregator(100.0, 2.60);
     let pv_panels_in_neighborhood = PVPanel::equip_neighborhood_with_pv_panels(10, 300.0); 
     let potential_production_energy = pv_panels_in_neighborhood.calculate_produced_energy(60);
-    let number_of_houses_with_pv_panels:i32 = ((number_of_houses_in_neighborhood as f32) * 0.2) as i32;   //The percentage of houses in the neighborhood with PV panels
+    let number_of_houses_with_pv_panels:i32 = ((NUMBER_OF_HOUSES_IN_NEIGHBORHOOD as f32) * 0.2) as i32;   //The percentage of houses in the neighborhood with PV panels
 
     let mut total_saved_energy_without_pv:f32 = 0.0;
     let mut total_consumed_energy_without_pv:f32 = 0.0;
 
-    for _hour in 1..=24 {
+    for hour in 1..=24 {
         let mut _saved:f32 = 0.0;
         let mut _consumed:f32 = 0.0;
 
-        (_saved,_consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances);
+        (_saved,_consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances, &array_of_devices_in_use,hour);
         total_consumed_energy_without_pv += _consumed;
         total_saved_energy_without_pv += _saved;    
     }
@@ -62,7 +64,7 @@ fn main() {
         total_surplus_production += _surplus_produced;    
     }
     //To remove users with no surplus produced energy
-    list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);
+    //list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);
 
     //let time_interval = energy_functions::get_time_interval();
 

@@ -114,13 +114,13 @@ pub fn set_battery_capacity() -> f32
     battery_cap
 }
 
-pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances]) -> (f32 ,f32)
+pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances], array_of_devices_in_use:&[[bool;6]],hour:i32) -> (f32 ,f32)
 {
     let mut total_saved_amount:f32 = 0.0;
     let mut total_consumed_amount:f32 = 0.0;
 
     for user in list_of_users{
-        energy_functions::calculate_saved_energy_for_user(user, 60, &array_of_appliances);
+        energy_functions::calculate_saved_energy_for_user(user, hour, &array_of_appliances, &array_of_devices_in_use);
         total_saved_amount += user.get_saved_amount_of_energy();
         total_consumed_amount += user.get_consumed_amount_of_energy();
     }
