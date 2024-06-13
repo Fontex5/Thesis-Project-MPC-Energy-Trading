@@ -32,6 +32,7 @@ fn main() {
 
     let mut total_saved_energy_without_pv:f32 = 0.0;
     let mut total_consumed_energy_without_pv:f32 = 0.0;
+    let mut cost_of_supplying_consumed_energy_without_pv:f32 = 0.0;
 
     for hour in 0..24 {
         let mut _saved:f32 = 0.0;
@@ -39,10 +40,10 @@ fn main() {
 
         (_saved,_consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances, & mut array_of_devices_in_use,hour);
         total_consumed_energy_without_pv += _consumed;
-        total_saved_energy_without_pv += _saved;    
+        total_saved_energy_without_pv += _saved;
+
+        cost_of_supplying_consumed_energy_without_pv += total_consumed_energy_without_pv * neighborhood_aggregator.get_provider_price(hour);    
     }
-    
-    let cost_of_supplying_consumed_energy_without_pv = total_consumed_energy_without_pv * neighborhood_aggregator.get_provider_price();
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
