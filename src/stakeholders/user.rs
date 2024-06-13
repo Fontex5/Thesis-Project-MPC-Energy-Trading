@@ -1,3 +1,5 @@
+use crate::devices_and_equipments::battery::{self, Battery};
+
 #[derive(Copy, Clone)]
 pub struct User {
     id : i32,
@@ -7,18 +9,20 @@ pub struct User {
     price_for_energy: f32,
     price_per_energy: f32,
     hours_devices_are_done:[i32;6],
+    battery:Battery,
 }
 
 impl User{
 
-    pub fn initialize_user(id:i32) ->Self
+    pub fn initialize_user(id:i32,battery_capacity:f32) ->Self
     {
         Self {  id, saved_amount_energy: 0.0,
                 consumed_amount_energy: 0.0,
                 produced_amount_energy: 0.0,
                 price_for_energy:0.0, 
                 price_per_energy:0.0,
-                hours_devices_are_done:[0;6] }
+                hours_devices_are_done:[0;6],
+                battery: Battery::initialize_battery(battery_capacity) }
     }
 
     pub fn set_saved_amount_energy(&mut self, saved_amount: f32)
@@ -84,5 +88,16 @@ impl User{
     pub fn set_finishing_hour_for_device_in_use(&mut self, device_index:usize, finishing_hour:i32)
     {
         self.hours_devices_are_done[device_index] = finishing_hour;
+    }
+
+    pub fn is_battery_full(&self) -> bool
+    {
+        self.battery.is_battery_full()
+    }
+
+    pub fn charge_battery(&mut self,received_energy:f32) -> f32
+    {
+        let exceeded_energy = self.battery.charge(received_energy);
+        exceeded_energy
     }
 }

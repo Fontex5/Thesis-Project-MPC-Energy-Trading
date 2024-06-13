@@ -11,7 +11,7 @@ fn main() {
     const NUMBER_OF_HOUSES_IN_NEIGHBORHOOD: usize = 50;
     let mut list_of_users:Vec<User> = Vec::new();
     for i in 0.. NUMBER_OF_HOUSES_IN_NEIGHBORHOOD {
-        list_of_users.push(User::initialize_user(i as i32));
+        list_of_users.push(User::initialize_user(i as i32, 40.0));
     }
 
     let array_of_appliances: [Appliances; 6] = [
