@@ -10,17 +10,17 @@ fn main() {
 
     const NUMBER_OF_HOUSES_IN_NEIGHBORHOOD: usize = 50;
     let mut list_of_users:Vec<User> = Vec::new();
-    for i in 1..= NUMBER_OF_HOUSES_IN_NEIGHBORHOOD {
+    for i in 0.. NUMBER_OF_HOUSES_IN_NEIGHBORHOOD {
         list_of_users.push(User::initialize_user(i as i32));
     }
 
     let array_of_appliances: [Appliances; 6] = [
-        Appliances::HeatPump(Device::set_device(3000, 1440)),
-        Appliances::Refrigerator(Device::set_device(150, 400)),
+        Appliances::HeatPump(Device::set_device(3000, 45)),
+        Appliances::Refrigerator(Device::set_device(150, 15)),
         Appliances::ElectricVehicle(Device::set_device(100, 45)), //Average commuting distance in Denmark 22.2 kilometers, 0.346kWh for 1.6Km, 50Km average speed
         Appliances::WashingMachine(Device::set_device(1000, 60)),
         Appliances::Dishwashser(Device::set_device(1500, 120)),
-        Appliances::CookingStove(Device::set_device(1500, 30))
+        Appliances::CookingStove(Device::set_device(1500, 20))
     ];
     
     let mut array_of_devices_in_use = [[false,false,false,false,false,false]; NUMBER_OF_HOUSES_IN_NEIGHBORHOOD];
@@ -33,11 +33,11 @@ fn main() {
     let mut total_saved_energy_without_pv:f32 = 0.0;
     let mut total_consumed_energy_without_pv:f32 = 0.0;
 
-    for hour in 1..=24 {
+    for hour in 0..24 {
         let mut _saved:f32 = 0.0;
         let mut _consumed:f32 = 0.0;
 
-        (_saved,_consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances, &array_of_devices_in_use,hour);
+        (_saved,_consumed) = aggregator::simulate_consumption(&mut list_of_users, &array_of_appliances, & mut array_of_devices_in_use,hour);
         total_consumed_energy_without_pv += _consumed;
         total_saved_energy_without_pv += _saved;    
     }
@@ -48,7 +48,7 @@ fn main() {
     let mut total_consumed_energy_with_pv:f32 = 0.0;
     let mut total_surplus_production:f32 = 0.0;
 
-    for hour in 1..=24 {
+    for hour in 0..24 {
         let mut _saved:f32 = 0.0;
         let mut _consumed:f32 = 0.0;
         let mut produced_energy:f32 = 0.0;
@@ -58,7 +58,7 @@ fn main() {
             produced_energy = potential_production_energy;
         }
 
-        (_saved,_consumed,_surplus_produced) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances, produced_energy, number_of_houses_with_pv_panels);
+        //(_saved,_consumed,_surplus_produced) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances, produced_energy, number_of_houses_with_pv_panels);
         total_saved_energy_with_pv += _saved;
         total_consumed_energy_with_pv += _consumed;
         total_surplus_production += _surplus_produced;    
