@@ -58,7 +58,7 @@ fn main() {
             produced_energy = potential_production_energy;
         }
 
-        //(_saved,_consumed,_surplus_produced) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances, produced_energy, number_of_houses_with_pv_panels);
+        (_saved,_consumed,_surplus_produced) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances,& mut array_of_devices_in_use, hour, produced_energy, number_of_houses_with_pv_panels);
         total_saved_energy_with_pv += _saved;
         total_consumed_energy_with_pv += _consumed;
         total_surplus_production += _surplus_produced;    

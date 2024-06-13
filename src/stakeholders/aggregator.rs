@@ -128,7 +128,7 @@ pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[
     (total_saved_amount,total_consumed_amount)
 }
 
-/*pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances], produced_energy:f32, number_of_houses_with_pv_panels:i32) -> (f32 ,f32,f32)
+pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances], array_of_devices_in_use:&mut[[bool;6]],hour:i32, produced_energy:f32, number_of_houses_with_pv_panels:i32) -> (f32 ,f32,f32)
 {
     let mut total_saved_amount:f32 = 0.0;
     let mut total_consumed_amount:f32 = 0.0;
@@ -136,7 +136,7 @@ pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[
     let mut number_of_considered_house_with_pv = 0;
 
     for user in list_of_users{
-        energy_functions::calculate_saved_energy_for_user(user, 60, &array_of_appliances);
+        energy_functions::calculate_saved_energy_for_user(user, hour, &array_of_appliances, array_of_devices_in_use);
         
         if number_of_considered_house_with_pv < number_of_houses_with_pv_panels 
         {
@@ -150,4 +150,4 @@ pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[
     }
 
     (total_saved_amount,total_consumed_amount, total_surplus_production)
-}*/
+}
