@@ -28,9 +28,18 @@ impl Aggregator
         self.price_received_by_elec_provider = price;
     }
 
-    pub fn get_provider_price(&self) ->f32
+    pub fn get_provider_price(&self,hour:i32) ->f32
     {
-        self.price_received_by_elec_provider
+        let price_change:f32 = match hour 
+        {
+            6..=12 => 1.2,
+            13..=18 => 1.4,
+            19..=23 => 0.8,
+            0..=5 => 0.4,
+            _ => 1.0,
+        };
+
+        self.price_received_by_elec_provider * price_change
     }
 
     pub fn supply_demand_with_pv(&self, list_of_users:Vec<User>,mut demanded_energy:f32) -> f32
