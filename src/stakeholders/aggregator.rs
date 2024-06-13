@@ -6,8 +6,6 @@ use super::user::User;
 
 pub struct Aggregator
 {
-    battery_capacity: f32,
-    battery_percentage: i32,
     price_received_by_elec_provider: f32
 }
 
@@ -15,12 +13,7 @@ impl Aggregator
 {
     pub fn initialize_aggregator(battery_capacity:f32, price_received_by_elec_provider:f32) ->Self
     {
-        Aggregator { battery_capacity, battery_percentage: 0 , price_received_by_elec_provider }
-    }
-
-    pub fn set_battery_capacity(&mut self, capacity:f32)
-    {
-        self.battery_capacity = capacity;
+        Aggregator { price_received_by_elec_provider }
     }
 
     pub fn set_provider_price(&mut self, price:f32)
@@ -62,40 +55,6 @@ impl Aggregator
         }
 
         total_price
-    }
-
-    fn charge_battery(&mut self, received_charge:f32)
-    {
-        if self.battery_percentage == 100
-        {
-            println!("Battery is full. Cannot charge anymore!");
-        }
-        else {
-            let needed_energy = self.calculate_reuqired_energy_for_full_battery();
-
-            if received_charge > needed_energy{
-                let exceeded_energy = received_charge - needed_energy;
-                println!("Battery is full now and {}kWh is exceeded",exceeded_energy);
-                self.battery_percentage = 100;
-            }
-            else{
-                self.battery_percentage += ((received_charge * 100.0) / self.battery_capacity) as i32;
-            }
-        }
-    }
-
-    fn calculate_reuqired_energy_for_full_battery(&self) -> f32
-    {
-        let remaining_percentage = 100 - self.battery_percentage;
-        ((remaining_percentage as f32) / 100.0) * self.battery_capacity 
-    }
-
-    pub fn is_battery_full(&self) -> bool
-    {
-        match self.battery_percentage{
-            100 => true,
-            _ => false,
-        }
     }
 }
 
