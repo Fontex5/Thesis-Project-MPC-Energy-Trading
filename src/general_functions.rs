@@ -18,19 +18,11 @@ pub mod energy_functions{
 
     pub fn is_device_already_in_use(user_id:i32, device:&Appliances, array_of_devices_in_use:&[[bool;6]])-> bool
     {
-        let device_index = match device.get_appliance_name().as_str() {
-            "Heat Pump" => 0,
-            "Refrigerator" => 1,
-            "Electric Vehicle" => 2,
-            "Washing Machine" => 3,
-            "Dishwashser" => 4,
-            "CookingStove" => 5,
-        };
-
+        let device_index = get_device_index(device);
         array_of_devices_in_use[user_id as usize][device_index]
     }
 
-    pub fn calculate_saved_energy_for_user(consumer: &mut User, hour:i32, appliances:&[Appliances],array_of_devices_in_use:&[[bool;6]])
+    pub fn calculate_saved_energy_for_user(consumer: &mut User, hour:i32, appliances:&[Appliances],array_of_devices_in_use:&mut [[bool;6]])
     {
         let mut total_saved_energy = 0.0;
         let mut total_consumption: f32 = 0.0;
@@ -38,38 +30,136 @@ pub mod energy_functions{
         for item in appliances{
             if is_device_already_in_use(consumer.get_user_id(), item, array_of_devices_in_use)
             {
-                //Next device
-                continue;
+                if check_if_usage_period_is_done(consumer, item, hour)
+                {
+                    let device_index = get_device_index(item);
+                    array_of_devices_in_use[consumer.get_user_id() as usize][device_index] = false;
+                }
+                else {
+                    continue;
+                }
+            }
+
+            if randomly_decide_usage_of_device(item,hour) 
+            {
+                let device_index = get_device_index(item);
+                array_of_devices_in_use[consumer.get_user_id() as usize][device_index] = true;
+
+                total_consumption += energy_consumption_of_device_in(&item);
+                update_finishing_time_of_device(consumer,hour,item);
             }
             else 
             {
-                if randomly_decide_usage_of_device(item,hour) {
-                    total_consumption += energy_consumption_of_device_in(&item,time_interval);
-                }
-                else {
-                    total_saved_energy += energy_consumption_of_device_in(&item,time_interval);
-                }
+                total_saved_energy += energy_consumption_of_device_in(&item);
             }
         }
     
         consumer.set_saved_amount_energy(total_saved_energy);
         consumer.set_consumed_amount_energy(total_consumption);
     }
+    fn check_if_usage_period_is_done (consumer: &mut User, device:&Appliances, hour:i32) -> bool
+    {
+        let device_index = get_device_index(device);
+        let when_device_will_be_done = consumer.get_finishing_hour_of_device(device_index);
+
+        if when_device_will_be_done <= hour 
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    fn get_device_index(device:&Appliances) -> usize
+    {
+        let device_index = match device.get_appliance_name().as_str() {
+            "Heat Pump" => 0,
+            "Refrigerator" => 1,
+            "Electric Vehicle" => 2,
+            "Washing Machine" => 3,
+            "Dishwashser" => 4,
+            "CookingStove" => 5,
+            _ => 6,
+        };
+
+        device_index
+    }
 
     fn randomly_decide_usage_of_device(item:&Appliances,hour:i32) -> bool
     {
         let mut generator = rand::thread_rng();
-        let decision = generator.gen_bool(0.5);
+        let mut decision = false;
+
+        match hour {
+            6..=12 => decision = {
+                match item.get_appliance_name().as_str() {
+                    "Heat Pump" => generator.gen_bool(0.7),
+                    "Refrigerator" => true,
+                    "Electric Vehicle" => generator.gen_bool(0.8),
+                    "Washing Machine" => generator.gen_bool(0.3),
+                    "Dishwashser" => generator.gen_bool(0.6),
+                    "CookingStove" => generator.gen_bool(0.8),
+                    _ => false,
+                }
+            },
+            13..=18 => decision = {
+                match item.get_appliance_name().as_str() {
+                    "Heat Pump" => generator.gen_bool(0.4),
+                    "Refrigerator" => true,
+                    "Electric Vehicle" => generator.gen_bool(0.8),
+                    "Washing Machine" => generator.gen_bool(0.3),
+                    "Dishwashser" => generator.gen_bool(0.2),
+                    "CookingStove" => generator.gen_bool(0.2),
+                    _ => false,
+                }
+            },
+            19..=23 => decision = {
+                match item.get_appliance_name().as_str() {
+                    "Heat Pump" => generator.gen_bool(0.7),
+                    "Refrigerator" => true,
+                    "Electric Vehicle" => generator.gen_bool(0.2),
+                    "Washing Machine" => generator.gen_bool(0.7),
+                    "Dishwashser" => generator.gen_bool(0.7),
+                    "CookingStove" => generator.gen_bool(0.8),
+                    _ => false,
+                }
+            },
+            0..=5 => decision = {
+                match item.get_appliance_name().as_str() {
+                    "Heat Pump" => generator.gen_bool(0.7),
+                    "Refrigerator" => true,
+                    "Electric Vehicle" => generator.gen_bool(0.1),
+                    "Washing Machine" => generator.gen_bool(0.1),
+                    "Dishwashser" => generator.gen_bool(0.15),
+                    "CookingStove" => generator.gen_bool(0.1),
+                    _ => false,
+                }
+            },
+            _ => decision = false,
+        }
+
         decision //If true the user will use the device
     }
 
-    fn energy_consumption_of_device_in(device: &Appliances, time_interval: i32) -> f32
+    fn energy_consumption_of_device_in(device: &Appliances) -> f32
      {    
         let an_hour_in_minuts = 60.0;
-        let period: f32 = (time_interval as f32)/ an_hour_in_minuts;
-    
+        let period: f32 = (device.get_avarage_usage_time() as f32)/ an_hour_in_minuts;
+        
         let consumed_watts = period * (device.get_average_consumption() as f32);
         consumed_watts / 1000.0
+    }
+
+    fn update_finishing_time_of_device(consumer: &mut User,starting_hour:i32,device: &Appliances)
+    {
+        let an_hour_in_minuts = 60.0;
+        let usage_period: f32 = (device.get_avarage_usage_time() as f32)/ an_hour_in_minuts;
+
+        let finishing_hour = (usage_period + starting_hour as f32).ceil();
+        let finishing_hour: i32 = (finishing_hour as i32) % 24;
+        let device_index = get_device_index(device);
+        consumer.set_finishing_hour_for_device_in_use(device_index, finishing_hour);
     }
 }
 

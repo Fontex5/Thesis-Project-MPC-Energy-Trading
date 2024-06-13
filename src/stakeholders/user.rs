@@ -6,6 +6,7 @@ pub struct User {
     produced_amount_energy:f32,
     price_for_energy: f32,
     price_per_energy: f32,
+    hours_devices_are_done:[i32;6],
 }
 
 impl User{
@@ -16,7 +17,8 @@ impl User{
                 consumed_amount_energy: 0.0,
                 produced_amount_energy: 0.0,
                 price_for_energy:0.0, 
-                price_per_energy:0.0 }
+                price_per_energy:0.0,
+                hours_devices_are_done:[0;6] }
     }
 
     pub fn set_saved_amount_energy(&mut self, saved_amount: f32)
@@ -72,5 +74,15 @@ impl User{
     pub fn get_price_per_energy(&self) -> f32
     {
         self.price_per_energy
+    }
+
+    pub fn get_finishing_hour_of_device(&self,device_index:usize) -> i32
+    {
+        self.hours_devices_are_done[device_index]
+    }
+
+    pub fn set_finishing_hour_for_device_in_use(&mut self, device_index:usize, finishing_hour:i32)
+    {
+        self.hours_devices_are_done[device_index] = finishing_hour;
     }
 }

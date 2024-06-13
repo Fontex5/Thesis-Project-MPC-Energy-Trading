@@ -17,6 +17,11 @@ impl Device
     pub fn get_average_consumption(&self)->i32{
         self.average_consumption_in_watts
     }
+
+    pub fn get_avarage_usage_time(&self) -> i32
+    {
+        self.average_time_usage_minutes
+    }
 }
 
 pub enum Appliances
@@ -54,4 +59,17 @@ impl Appliances
             Self::CookingStove(_) => String::from("CookingStove"),
         }
     }
+
+    pub fn get_avarage_usage_time(&self) -> i32
+    {
+        match self {
+            Self::HeatPump(device) => device.get_avarage_usage_time(),
+            Self::Refrigerator(device) => device.get_avarage_usage_time(),
+            Self::ElectricVehicle(device) => device.get_avarage_usage_time(),
+            Self::WashingMachine(device) => device.get_avarage_usage_time(),
+            Self::Dishwashser(device) => device.get_avarage_usage_time(),
+            Self::CookingStove(device) => device.get_avarage_usage_time(),
+        }
+    }
 }
+
