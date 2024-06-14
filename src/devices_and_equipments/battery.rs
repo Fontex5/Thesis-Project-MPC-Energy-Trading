@@ -1,3 +1,4 @@
+#[derive(Copy, Clone)]
 pub struct Battery
 {
     capacity: f32,
