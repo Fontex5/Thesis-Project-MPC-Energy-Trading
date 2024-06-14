@@ -31,7 +31,7 @@ impl PVPanel{
     }
 }
 
-pub fn deduct_produced_energy_from_consumption(user:& mut User, produced_energy:f32) 
+pub fn deduct_produced_energy_from_consumption(user:& mut User, produced_energy:f32) -> f32
 {
     let remainder_energy = produced_energy - user.get_consumed_amount_of_energy();
 
@@ -39,10 +39,11 @@ pub fn deduct_produced_energy_from_consumption(user:& mut User, produced_energy:
     {
         //The house's energy usage is covered by the PV panel
         user.set_consumed_amount_energy(0.0);
-        user.set_produced_amount_energy(remainder_energy);
     }
     else {
         let consumed_energy = remainder_energy * -1.0;
         user.set_consumed_amount_energy(consumed_energy);
     }
+
+    remainder_energy
 }

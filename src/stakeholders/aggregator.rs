@@ -96,7 +96,7 @@ pub fn simulate_consumption(list_of_users:&mut Vec<User>, array_of_appliances:&[
     (total_saved_amount,total_consumed_amount)
 }
 
-pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances], array_of_devices_in_use:&mut[[bool;6]],hour:i32, produced_energy:f32, number_of_houses_with_pv_panels:i32) -> (f32 ,f32,f32)
+pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_of_appliances:&[Appliances], array_of_devices_in_use:&mut[[bool;6]],hour:i32, produced_energy:f32, number_of_houses_with_pv_panels:i32) -> (f32 ,f32)
 {
     let mut total_saved_amount:f32 = 0.0;
     let mut total_consumed_amount:f32 = 0.0;
@@ -106,16 +106,29 @@ pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_o
     for user in list_of_users{
         energy_functions::calculate_saved_energy_for_user(user, hour, &array_of_appliances, array_of_devices_in_use);
         
-        if number_of_considered_house_with_pv < number_of_houses_with_pv_panels 
+        if (number_of_considered_house_with_pv < number_of_houses_with_pv_panels) && (produced_energy != 0.0) 
         {
-            pv_panels::deduct_produced_energy_from_consumption(user, produced_energy);
+            let remainder_energy = pv_panels::deduct_produced_energy_from_consumption(user, produced_energy);
+
+            if remainder_energy >= 0.0
+            {
+                if user.is_battery_full() 
+                {
+                    //User cannot save it and DSO will not pay for it 
+                    total_surplus_production += remainder_energy;
+                }
+                else 
+                {
+                    total_surplus_production += user.charge_battery(remainder_energy);
+                }
+            }
             number_of_considered_house_with_pv += 1;
         } 
         
         total_saved_amount += user.get_saved_amount_of_energy();
         total_consumed_amount += user.get_consumed_amount_of_energy();
-        total_surplus_production += user.get_produced_amount_of_energy();
     }
+    total_consumed_amount -= total_surplus_production;
 
-    (total_saved_amount,total_consumed_amount, total_surplus_production)
+    (total_saved_amount,total_consumed_amount)
 }

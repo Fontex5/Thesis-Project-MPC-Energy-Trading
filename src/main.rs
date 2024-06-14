@@ -47,22 +47,19 @@ fn main() {
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
-    let mut total_surplus_production:f32 = 0.0;
 
     for hour in 0..24 {
         let mut _saved:f32 = 0.0;
         let mut _consumed:f32 = 0.0;
         let mut produced_energy:f32 = 0.0;
-        let mut _surplus_produced: f32 = 0.0;
 
         if PVPanel::can_pv_panel_produce_energy(hour) {
             produced_energy = potential_production_energy;
         }
 
-        (_saved,_consumed,_surplus_produced) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances,& mut array_of_devices_in_use, hour, produced_energy, number_of_houses_with_pv_panels);
+        (_saved,_consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances,& mut array_of_devices_in_use, hour, produced_energy, number_of_houses_with_pv_panels);
         total_saved_energy_with_pv += _saved;
         total_consumed_energy_with_pv += _consumed;
-        total_surplus_production += _surplus_produced;    
     }
     //To remove users with no surplus produced energy
     //list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);
@@ -87,7 +84,6 @@ fn main() {
     println!("Supplying the consumed energy costs {}DKK using the energy provider",cost_of_supplying_consumed_energy_without_pv);
     println!("==========================================================================================");
     println!("Total amount of consumed energy with PV panels: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_pv, total_saved_energy_with_pv);
-    println!("And, the total remainded produced energy from the PV panels is: {}kWh",total_surplus_production);
     println!("With local market and electricity provider, the cost is: {}DKK",cost_of_supplying_consumed_energy_with_pv);
 
 }

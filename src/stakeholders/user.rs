@@ -1,4 +1,4 @@
-use crate::devices_and_equipments::battery::{self, Battery};
+use crate::devices_and_equipments::battery::Battery;
 
 #[derive(Copy, Clone)]
 pub struct User {
