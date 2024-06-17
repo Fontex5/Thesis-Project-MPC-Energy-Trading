@@ -57,6 +57,7 @@ pub mod energy_functions{
         consumer.set_saved_amount_energy(total_saved_energy);
         consumer.set_consumed_amount_energy(total_consumption);
     }
+
     fn check_if_usage_period_is_done (consumer: &mut User, device:&Appliances, hour:i32) -> bool
     {
         let device_index = get_device_index(device);
@@ -170,8 +171,44 @@ pub mod auction_functions{
 
     pub fn randomly_set_price_for_energy_per_user(user: &mut User)
     {
-        let price = rand::thread_rng().gen_range(0.0..=6.0);  
+        let price:f32 = 0.0;
+        let mut generator = rand::thread_rng();
+
+        if user.get_battery_percentage() > 70
+        {
+            
+        }
+            price = .gen_range(0.0..=2.0);  
         user.set_price_for_energy(price);
+    }
+
+    pub fn user_wants_to_sell(user: &mut User) -> bool
+    {
+        let mut generator = rand::thread_rng();
+        let decision:bool = match user.get_battery_percentage() {
+            70..=100 => generator.gen_bool(0.8),
+            30..=70 => generator.gen_bool(0.5),
+            5..=30 => generator.gen_bool(0.2),
+            _ => false,
+        };
+
+        decision
+    }
+
+    pub fn collect_offers_from_users(list_of_users:&mut Vec<User>)
+    {
+        for user in list_of_users
+        {
+            if user.get_battery_percentage() != 0 
+            {
+                if user_wants_to_sell(user)
+                {
+                    randomly_set_price_for_energy_per_user(user);
+                }
+            }
+        }
+    
+        super::sorting::sort(list_of_users);
     }
 
     pub fn announce_the_winner(list_of_users:&mut Vec<User>)

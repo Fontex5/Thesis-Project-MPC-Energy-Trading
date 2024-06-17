@@ -50,4 +50,9 @@ impl Battery
             _ => false,
         }
     }
+
+    pub fn get_percentage(&self) -> i32
+    {
+        self.percentage
+    }
 }

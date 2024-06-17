@@ -100,4 +100,9 @@ impl User{
         let exceeded_energy = self.battery.charge(received_energy);
         exceeded_energy
     }
+
+    pub fn get_battery_percentage(&self) -> i32
+    {
+        self.get_battery_percentage()
+    }
 }
