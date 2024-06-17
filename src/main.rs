@@ -25,7 +25,7 @@ fn main() {
     
     let mut array_of_devices_in_use = [[false,false,false,false,false,false]; NUMBER_OF_HOUSES_IN_NEIGHBORHOOD];
     
-    let neighborhood_aggregator = Aggregator::initialize_aggregator(100.0, 2.60);
+    let neighborhood_aggregator = Aggregator::initialize_aggregator(2.60);
     let pv_panels_in_neighborhood = PVPanel::equip_neighborhood_with_pv_panels(10, 300.0); 
     let potential_production_energy = pv_panels_in_neighborhood.calculate_produced_energy(60);
     let number_of_houses_with_pv_panels:i32 = ((NUMBER_OF_HOUSES_IN_NEIGHBORHOOD as f32) * 0.2) as i32;   //The percentage of houses in the neighborhood with PV panels
@@ -47,6 +47,7 @@ fn main() {
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
+    let mut total_cost_with_pv_panels:f32 = 0.0;
 
     for hour in 0..24 {
         let mut _saved:f32 = 0.0;
@@ -60,6 +61,9 @@ fn main() {
         (_saved,_consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances,& mut array_of_devices_in_use, hour, produced_energy, number_of_houses_with_pv_panels);
         total_saved_energy_with_pv += _saved;
         total_consumed_energy_with_pv += _consumed;
+
+
+        total_cost_with_pv_panels += neighborhood_aggregator.calculate_cost_for_hour(&mut list_of_users,hour,total_consumed_energy_with_pv);
     }
     //To remove users with no surplus produced energy
     //list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);

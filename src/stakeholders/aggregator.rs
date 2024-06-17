@@ -1,6 +1,6 @@
 use std::io;
 use crate::devices_and_equipments::{home_appliances::Appliances,pv_panels};
-use crate::general_functions::energy_functions;
+use crate::general_functions::{auction_functions, energy_functions, sorting};
 
 use super::user::User;
 
@@ -11,7 +11,7 @@ pub struct Aggregator
 
 impl Aggregator
 {
-    pub fn initialize_aggregator(battery_capacity:f32, price_received_by_elec_provider:f32) ->Self
+    pub fn initialize_aggregator(price_received_by_elec_provider:f32) ->Self
     {
         Aggregator { price_received_by_elec_provider }
     }
@@ -35,27 +35,19 @@ impl Aggregator
         self.price_received_by_elec_provider * price_change
     }
 
-    pub fn supply_demand_with_pv(&self, list_of_users:Vec<User>,mut demanded_energy:f32) -> f32
+    pub fn calculate_cost_for_hour(&self, list_of_users:&mut Vec<User>, hour:i32,demanded_energy:f32) -> f32
     {
-        let mut i = 0;
-        let mut total_price = 0.0;
+        auction_functions::collect_offers_from_users(list_of_users);
 
-        while demanded_energy != 0.0
+        for user in list_of_users
         {
-            if list_of_users[i].get_price_per_energy() < self.price_received_by_elec_provider {
-                demanded_energy -= list_of_users[i].get_produced_amount_of_energy();
-                //list_of_users[i].set_produced_amount_energy(0.0);
-                total_price += list_of_users[i].get_price_for_energy();
-                i += 1; 
-            }
-            else {
-                total_price += demanded_energy * self.price_received_by_elec_provider;
-                demanded_energy = 0.0;
-            }
-        }
 
-        total_price
+        }
     }
+
+
+
+
 }
 
 pub fn get_price_from_electricity_provider() -> f32
@@ -132,3 +124,4 @@ pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_o
 
     (total_saved_amount,total_consumed_amount)
 }
+
