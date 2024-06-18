@@ -41,7 +41,7 @@ fn main() {
         total_consumed_energy_without_pv += _consumed;
         total_saved_energy_without_pv += _saved;
 
-        cost_of_supplying_consumed_energy_without_pv += total_consumed_energy_without_pv * neighborhood_aggregator.get_provider_price(hour);    
+        cost_of_supplying_consumed_energy_without_pv += _consumed * neighborhood_aggregator.get_provider_price(hour);    
     }
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
