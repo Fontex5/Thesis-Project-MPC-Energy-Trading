@@ -1,6 +1,6 @@
 use std::io;
 use crate::devices_and_equipments::{home_appliances::Appliances,pv_panels};
-use crate::general_functions::{auction_functions, energy_functions, sorting};
+use crate::general_functions::{auction_functions, energy_functions};
 
 use super::user::User;
 
@@ -35,19 +35,32 @@ impl Aggregator
         self.price_received_by_elec_provider * price_change
     }
 
-    pub fn calculate_cost_for_hour(&self, list_of_users:&mut Vec<User>, hour:i32,demanded_energy:f32) -> f32
+    pub fn calculate_cost_for_hour(&self, list_of_users:&mut Vec<User>, hour:i32,mut demanded_energy:f32) -> f32
     {
         auction_functions::collect_offers_from_users(list_of_users);
 
-        for user in list_of_users
+        let mut cost:f32 = 0.0;
+
+        while demanded_energy > 0.0
         {
-
+            for user in &mut *list_of_users
+            {
+                if user.get_produced_amount_of_energy() > 0.0
+                {
+                    if user.get_price_per_energy() < self.get_provider_price(hour)
+                    {
+                        demanded_energy -= user.get_produced_amount_of_energy();
+                        cost += user.get_price_for_energy();
+                        user.decharge_battery_based_on_produced_amount();
+                    }
+                }
+            }
+            cost += demanded_energy * self.get_provider_price(hour);
+            demanded_energy = 0.0;
         }
+
+        cost
     }
-
-
-
-
 }
 
 pub fn get_price_from_electricity_provider() -> f32

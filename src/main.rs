@@ -1,6 +1,5 @@
 use devices_and_equipments::{home_appliances::{Appliances,Device}, pv_panels::PVPanel};
 use stakeholders::{user::User,aggregator::Aggregator,aggregator};
-use general_functions::{auction_functions,sorting};
 
 pub mod devices_and_equipments;
 pub mod stakeholders;
@@ -63,31 +62,16 @@ fn main() {
         total_consumed_energy_with_pv += _consumed;
 
 
-        total_cost_with_pv_panels += neighborhood_aggregator.calculate_cost_for_hour(&mut list_of_users,hour,total_consumed_energy_with_pv);
+        total_cost_with_pv_panels += neighborhood_aggregator.calculate_cost_for_hour(&mut list_of_users,hour,_consumed);
     }
     //To remove users with no surplus produced energy
     //list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);
-
-    //let time_interval = energy_functions::get_time_interval();
-
-    for user in &mut list_of_users
-    {
-        auction_functions::randomly_set_price_for_energy_per_user(user);
-        user.set_price_per_energy();
-    }
-    
-
-    sorting::sort(&mut list_of_users);
-
-    //auction_functions::announce_the_winner(&mut list_of_users);
-    
-    let cost_of_supplying_consumed_energy_with_pv = neighborhood_aggregator.supply_demand_with_pv(list_of_users,total_consumed_energy_with_pv);
 
     println!("==========================================================================================");
     println!("Total amount of consumed energy without PV panels: {}kWh\nTotal amount of saved energy without PV panels: {}kWh", total_consumed_energy_without_pv, total_saved_energy_without_pv);
     println!("Supplying the consumed energy costs {}DKK using the energy provider",cost_of_supplying_consumed_energy_without_pv);
     println!("==========================================================================================");
     println!("Total amount of consumed energy with PV panels: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_pv, total_saved_energy_with_pv);
-    println!("With local market and electricity provider, the cost is: {}DKK",cost_of_supplying_consumed_energy_with_pv);
+    println!("With local market and electricity provider, the cost is: {}DKK",total_cost_with_pv_panels);
 
 }

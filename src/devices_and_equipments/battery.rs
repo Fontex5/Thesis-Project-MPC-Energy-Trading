@@ -55,4 +55,25 @@ impl Battery
     {
         self.percentage
     }
+
+    pub fn get_capacity(&self) -> f32
+    {
+        self.capacity
+    }
+
+    pub fn decharge(&mut self, used_energy:f32)
+    {
+        let used_percentage = convert_energy_to_percentage(used_energy, self.capacity);
+        self.percentage = self.percentage - used_percentage;
+    }
+}
+
+pub fn convert_percentage_to_energy(percentage:i32, capacity:f32) ->f32
+{
+    (percentage as f32 / 100.0) * capacity
+}
+
+pub fn convert_energy_to_percentage(energy:f32,capacity:f32) -> i32
+{
+    ((energy * 100.0) / capacity) as i32
 }

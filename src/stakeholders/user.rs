@@ -103,6 +103,17 @@ impl User{
 
     pub fn get_battery_percentage(&self) -> i32
     {
-        self.get_battery_percentage()
+        self.battery.get_percentage()
+    }
+
+    pub fn get_battery_capacity(&self) -> f32
+    {
+        self.battery.get_capacity()
+    }
+
+    pub fn decharge_battery_based_on_produced_amount(&mut self)
+    {
+        self.battery.decharge(self.produced_amount_energy);
+        self.produced_amount_energy = 0.0;
     }
 }
