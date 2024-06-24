@@ -18,7 +18,7 @@ fn main() {
         Appliances::Refrigerator(Device::set_device(150, 15)),
         Appliances::ElectricVehicle(Device::set_device(100, 45)), //Average commuting distance in Denmark 22.2 kilometers, 0.346kWh for 1.6Km, 50Km average speed
         Appliances::WashingMachine(Device::set_device(1000, 60)),
-        Appliances::Dishwashser(Device::set_device(1500, 120)),
+        Appliances::Dishwasher(Device::set_device(1500, 120)),
         Appliances::CookingStove(Device::set_device(1500, 20))
     ];
     
