@@ -51,7 +51,7 @@ impl Aggregator
                     {
                         demanded_energy -= user.get_produced_amount_of_energy();
                         cost += user.get_price_for_energy();
-                        user.decharge_battery_based_on_produced_amount();
+                        user.decharge_battery(user.get_produced_amount_of_energy());
                     }
                 }
             }
@@ -109,25 +109,27 @@ pub fn simulate_consumption_with_pv_panels(list_of_users:&mut Vec<User>, array_o
     let mut number_of_considered_house_with_pv = 0;
 
     for user in list_of_users{
-        energy_functions::calculate_saved_energy_for_user(user, hour, &array_of_appliances, array_of_devices_in_use);
         
         if (number_of_considered_house_with_pv < number_of_houses_with_pv_panels) && (produced_energy != 0.0) 
         {
-            let remainder_energy = pv_panels::deduct_produced_energy_from_consumption(user, produced_energy);
-
-            if remainder_energy >= 0.0
+            let remainder_energy = energy_functions::calculate_energy_consumption_regarding_pv_bss(user, hour, &array_of_appliances, array_of_devices_in_use,produced_energy);
+            if remainder_energy > 0.0
             {
-                if user.is_battery_full() 
+                if remainder_energy < user.get_required_energy_to_full_battery() 
                 {
-                    //User cannot save it and DSO will not pay for it 
-                    total_surplus_production += remainder_energy;
+                    user.charge_battery(remainder_energy);
                 }
                 else 
                 {
-                    total_surplus_production += user.charge_battery(remainder_energy);
+                    //User cannot save it and DSO will not pay for it 
+                    total_surplus_production += remainder_energy;    
                 }
             }
             number_of_considered_house_with_pv += 1;
+        }
+        else 
+        {
+            energy_functions::calculate_saved_energy_for_user(user, hour, &array_of_appliances, array_of_devices_in_use);
         } 
         
         total_saved_amount += user.get_saved_amount_of_energy();

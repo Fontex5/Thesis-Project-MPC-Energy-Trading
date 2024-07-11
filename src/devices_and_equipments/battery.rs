@@ -16,28 +16,12 @@ impl Battery
         }
     }
 
-    pub fn charge(&mut self, received_charge:f32) -> f32
+    pub fn charge(&mut self, received_charge:f32)
     {
-        if self.percentage == 100
-        {
-            return received_charge;
-        }
-        else {
-            let needed_energy = self.calculate_reuqired_energy_to_be_full();
-
-            if received_charge > needed_energy{
-                let exceeded_energy = received_charge - needed_energy;
-                self.percentage = 100;
-                return exceeded_energy;
-            }
-            else{
-                self.percentage += ((received_charge * 100.0) / self.capacity) as i32;
-                return 0.0;
-            }
-        }
+        self.percentage += ((received_charge * 100.0 as f32) / self.capacity).ceil() as i32
     }
 
-    fn calculate_reuqired_energy_to_be_full(&self) -> f32
+    pub fn calculate_reuqired_energy_to_be_full(&self) -> f32
     {
         let remaining_percentage = 100 - self.percentage;
         ((remaining_percentage as f32) / 100.0) * self.capacity 
@@ -66,6 +50,11 @@ impl Battery
         let used_percentage = convert_energy_to_percentage(used_energy, self.capacity);
         self.percentage = self.percentage - used_percentage;
     }
+
+    pub fn state_of_charge(&self) -> f32
+    {
+        (self.percentage as f32 * self.capacity)/100.0 as f32
+    }
 }
 
 pub fn convert_percentage_to_energy(percentage:i32, capacity:f32) ->f32
@@ -75,5 +64,5 @@ pub fn convert_percentage_to_energy(percentage:i32, capacity:f32) ->f32
 
 pub fn convert_energy_to_percentage(energy:f32,capacity:f32) -> i32
 {
-    ((energy * 100.0) / capacity) as i32
+    ((energy * 100.0 as f32) / capacity).ceil() as i32
 }

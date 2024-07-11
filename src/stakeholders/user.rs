@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::devices_and_equipments::battery::Battery;
 
 #[derive(Copy, Clone)]
@@ -95,10 +97,9 @@ impl User{
         self.battery.is_battery_full()
     }
 
-    pub fn charge_battery(&mut self,received_energy:f32) -> f32
+    pub fn charge_battery(&mut self,received_energy:f32)
     {
-        let exceeded_energy = self.battery.charge(received_energy);
-        exceeded_energy
+        self.battery.charge(received_energy);
     }
 
     pub fn get_battery_percentage(&self) -> i32
@@ -111,9 +112,28 @@ impl User{
         self.battery.get_capacity()
     }
 
-    pub fn decharge_battery_based_on_produced_amount(&mut self)
+    pub fn get_battery_state_of_charge(&self) -> f32
     {
-        self.battery.decharge(self.produced_amount_energy);
-        self.produced_amount_energy = 0.0;
+        self.battery.state_of_charge()
+    }
+    pub fn decharge_battery(&mut self, energy:f32)
+    {
+        self.battery.decharge(energy);
+    }
+
+    pub fn get_required_energy_to_full_battery(&self) -> f32
+    {
+        self.battery.calculate_reuqired_energy_to_be_full()
+    }
+    
+    pub fn whether_sell_energy(&self) -> bool
+    {
+        let mut generator = rand::thread_rng();
+        match self.battery.get_percentage() {
+            70..=100 => generator.gen_bool(0.8),
+            30..=69 => generator.gen_bool(0.5),
+            5..=29 => generator.gen_bool(0.2),
+            _ => false,
+        }
     }
 }

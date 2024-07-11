@@ -58,6 +58,59 @@ pub mod energy_functions{
         consumer.set_consumed_amount_energy(total_consumption);
     }
 
+    pub fn calculate_energy_consumption_regarding_pv_bss (consumer: &mut User, hour:i32, appliances:&[Appliances],
+        array_of_devices_in_use:&mut [[bool;6]], produced_energy:f32) -> f32
+    {
+        let mut total_saved_energy = 0.0;
+        let mut total_consumption: f32 = 0.0;
+        let mut remainder_generated_energy = produced_energy;
+
+        for item in appliances{
+            if is_device_already_in_use(consumer.get_user_id(), item, array_of_devices_in_use)
+            {
+                if check_if_usage_period_is_done(consumer, item, hour)
+                {
+                    let device_index = get_device_index(item);
+                    array_of_devices_in_use[consumer.get_user_id() as usize][device_index] = false;
+                }
+                else {
+                    continue;
+                }
+            }
+
+            if randomly_decide_usage_of_device(item,hour) 
+            {
+                let device_index = get_device_index(item);
+                array_of_devices_in_use[consumer.get_user_id() as usize][device_index] = true;
+                let device_energy_demand = energy_consumption_of_device_in(&item);
+
+                if remainder_generated_energy > device_energy_demand
+                {
+                    remainder_generated_energy -= device_energy_demand;
+                }
+                else {
+                    if consumer.get_battery_state_of_charge() > device_energy_demand
+                    {
+                        consumer.decharge_battery(device_energy_demand);
+                    }
+                    else 
+                    {
+                        total_consumption += device_energy_demand;
+                    }
+                }
+                update_finishing_time_of_device(consumer,hour,item);
+            }
+            else 
+            {
+                total_saved_energy += energy_consumption_of_device_in(&item);
+            }
+        }
+    
+        consumer.set_saved_amount_energy(total_saved_energy);
+        consumer.set_consumed_amount_energy(total_consumption);
+        remainder_generated_energy
+    }
+
     fn check_if_usage_period_is_done (consumer: &mut User, device:&Appliances, hour:i32) -> bool
     {
         let device_index = get_device_index(device);
@@ -163,6 +216,8 @@ pub mod energy_functions{
 }
 
 pub mod auction_functions{
+    use std::f32::consts::PI;
+
     use crate::{devices_and_equipments::battery, stakeholders::user::User};
     use rand::Rng;
 
@@ -172,7 +227,7 @@ pub mod auction_functions{
         {
             if user.get_battery_percentage() != 0 
             {
-                if user_wants_to_sell(user)
+                if user.whether_sell_energy()
                 {
                     let amount_of_energy_for_sale = randomly_choose_energy_amount_from_battery(user);
                     user.set_produced_amount_energy(amount_of_energy_for_sale);
