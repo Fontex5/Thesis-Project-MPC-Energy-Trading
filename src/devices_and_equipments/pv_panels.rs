@@ -16,7 +16,7 @@ impl PVPanel{
     pub fn can_pv_panel_produce_energy(hour:i32) -> bool
     {
         match hour {
-            7..=15 => return true,
+            8..=14 => return true,
             _ => return false,
         }
     }
