@@ -1,5 +1,5 @@
 use std::io;
-use crate::devices_and_equipments::{home_appliances::Appliances,pv_panels};
+use crate::devices_and_equipments::home_appliances::Appliances;
 use crate::general_functions::{auction_functions, energy_functions};
 
 use super::user::User;
