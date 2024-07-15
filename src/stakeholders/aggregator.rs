@@ -52,6 +52,7 @@ impl Aggregator
                         demanded_energy -= user.get_produced_amount_of_energy();
                         cost += user.get_price_for_energy();
                         user.decharge_battery(user.get_produced_amount_of_energy());
+                        user.set_produced_amount_energy(0.0);
                     }
                 }
             }

@@ -223,7 +223,7 @@ pub mod auction_functions{
     {
         for user in &mut *list_of_users
         {
-            if user.get_battery_percentage() != 0 
+            if user.get_battery_percentage() > 0 
             {
                 if user.whether_sell_energy()
                 {

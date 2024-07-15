@@ -102,7 +102,7 @@ impl User{
         self.battery.charge(received_energy);
     }
 
-    pub fn get_battery_percentage(&self) -> i32
+    pub fn get_battery_percentage(&self) -> u8
     {
         self.battery.get_percentage()
     }

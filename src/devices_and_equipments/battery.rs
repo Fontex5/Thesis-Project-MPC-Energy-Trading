@@ -2,7 +2,7 @@
 pub struct Battery
 {
     capacity: f32,
-    percentage: i32,
+    percentage: u8,
 }
 
 impl Battery
@@ -18,7 +18,7 @@ impl Battery
 
     pub fn charge(&mut self, received_charge:f32)
     {
-        self.percentage += ((received_charge * 100.0 as f32) / self.capacity).ceil() as i32
+        self.percentage += ((received_charge * 100.0 as f32) / self.capacity).ceil() as u8
     }
 
     pub fn calculate_reuqired_energy_to_be_full(&self) -> f32
@@ -35,7 +35,7 @@ impl Battery
         }
     }
 
-    pub fn get_percentage(&self) -> i32
+    pub fn get_percentage(&self) -> u8
     {
         self.percentage
     }
@@ -57,12 +57,12 @@ impl Battery
     }
 }
 
-pub fn convert_percentage_to_energy(percentage:i32, capacity:f32) ->f32
+pub fn convert_percentage_to_energy(percentage:u8, capacity:f32) ->f32
 {
     (percentage as f32 / 100.0) * capacity
 }
 
-pub fn convert_energy_to_percentage(energy:f32,capacity:f32) -> i32
+pub fn convert_energy_to_percentage(energy:f32,capacity:f32) -> u8
 {
-    ((energy * 100.0 as f32) / capacity).ceil() as i32
+    ((energy * 100.0 as f32) / capacity).ceil() as u8
 }
