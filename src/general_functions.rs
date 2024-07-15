@@ -216,8 +216,6 @@ pub mod energy_functions{
 }
 
 pub mod auction_functions{
-    use std::f32::consts::PI;
-
     use crate::{devices_and_equipments::battery, stakeholders::user::User};
     use rand::Rng;
 
