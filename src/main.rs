@@ -4,6 +4,7 @@ use stakeholders::{user::User,aggregator::Aggregator,aggregator};
 pub mod devices_and_equipments;
 pub mod stakeholders;
 pub mod general_functions;
+pub mod double_auction;
 
 fn main() {
 
