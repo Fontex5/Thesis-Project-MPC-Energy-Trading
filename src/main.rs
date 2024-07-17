@@ -48,22 +48,26 @@ fn main() {
     let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
     let mut total_cost_with_pv_panels:f32 = 0.0;
+    
 
     for hour in 0..24 {
         let mut _saved:f32 = 0.0;
         let mut _consumed:f32 = 0.0;
         let mut produced_energy:f32 = 0.0;
-
+        let mut sell_orders:Vec<double_auction::Order> = Vec::new();
+        let mut buy_orders:Vec<double_auction::Order> = Vec::new();
+        
         if PVPanel::can_pv_panel_produce_energy(hour) {
             produced_energy = potential_production_energy;
         }
 
-        (_saved,_consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances,& mut array_of_devices_in_use, hour, produced_energy, number_of_houses_with_pv_panels);
+        (_saved,_consumed) = aggregator::simulate_consumption_with_pv_panels(&mut list_of_users, &array_of_appliances,& mut array_of_devices_in_use, hour, 
+                                                produced_energy, number_of_houses_with_pv_panels,&mut buy_orders);
         total_saved_energy_with_pv += _saved;
         total_consumed_energy_with_pv += _consumed;
 
 
-        total_cost_with_pv_panels += neighborhood_aggregator.calculate_cost_for_hour(&mut list_of_users,hour,_consumed);
+        total_cost_with_pv_panels += neighborhood_aggregator.calculate_cost_for_hour(&mut list_of_users,hour,&mut buy_orders,&mut sell_orders);
     }
     //To remove users with no surplus produced energy
     //list_of_users.retain(|&x| x.get_produced_amount_of_energy() != 0.0);

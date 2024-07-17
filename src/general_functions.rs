@@ -1,5 +1,6 @@
 pub mod energy_functions{
     use crate::devices_and_equipments::home_appliances::Appliances;
+    use crate::double_auction::{self, Order};
     use crate::stakeholders::user::User;
     use std::io;
     use rand::Rng;
@@ -22,7 +23,8 @@ pub mod energy_functions{
         array_of_devices_in_use[user_id as usize][device_index]
     }
 
-    pub fn calculate_saved_energy_for_user(consumer: &mut User, hour:i32, appliances:&[Appliances],array_of_devices_in_use:&mut [[bool;6]])
+    pub fn calculate_saved_energy_for_user(consumer: &mut User, hour:i32, appliances:&[Appliances],array_of_devices_in_use:&mut [[bool;6]],
+                                            buy_order:&mut Vec<double_auction::Order>)
     {
         let mut total_saved_energy = 0.0;
         let mut total_consumption: f32 = 0.0;
@@ -45,7 +47,11 @@ pub mod energy_functions{
                 let device_index = get_device_index(item);
                 array_of_devices_in_use[consumer.get_user_id() as usize][device_index] = true;
 
-                total_consumption += energy_consumption_of_device_in(&item);
+                let device_energy_demand = energy_consumption_of_device_in(&item); 
+                total_consumption += device_energy_demand;
+                let price:f32 = rand::thread_rng().gen_range(0.0..=2.0) * device_energy_demand;
+                buy_order.push(Order::new_order(consumer.get_user_id(), price , device_energy_demand));
+
                 update_finishing_time_of_device(consumer,hour,item);
             }
             else 
@@ -59,7 +65,8 @@ pub mod energy_functions{
     }
 
     pub fn calculate_energy_consumption_regarding_pv_bss (consumer: &mut User, hour:i32, appliances:&[Appliances],
-        array_of_devices_in_use:&mut [[bool;6]], produced_energy:f32) -> f32
+        array_of_devices_in_use:&mut [[bool;6]], produced_energy:f32,
+        buy_order:&mut Vec<double_auction::Order>) -> f32
     {
         let mut total_saved_energy = 0.0;
         let mut total_consumption: f32 = 0.0;
@@ -84,18 +91,20 @@ pub mod energy_functions{
                 array_of_devices_in_use[consumer.get_user_id() as usize][device_index] = true;
                 let device_energy_demand = energy_consumption_of_device_in(&item);
 
-                if remainder_generated_energy > device_energy_demand
+                if remainder_generated_energy >= device_energy_demand
                 {
                     remainder_generated_energy -= device_energy_demand;
                 }
                 else {
-                    if consumer.get_battery_state_of_charge() > device_energy_demand
+                    if consumer.get_battery_state_of_charge() >= device_energy_demand
                     {
                         consumer.decharge_battery(device_energy_demand);
                     }
                     else 
                     {
                         total_consumption += device_energy_demand;
+                        let price:f32 = rand::thread_rng().gen_range(0.0..=2.0) * device_energy_demand;
+                        buy_order.push(Order::new_order(consumer.get_user_id(), price , device_energy_demand));
                     }
                 }
                 update_finishing_time_of_device(consumer,hour,item);
@@ -216,10 +225,10 @@ pub mod energy_functions{
 }
 
 pub mod auction_functions{
-    use crate::{devices_and_equipments::battery, stakeholders::user::User};
+    use crate::{devices_and_equipments::battery, double_auction::Order, stakeholders::user::User};
     use rand::Rng;
 
-    pub fn collect_offers_from_users(list_of_users:&mut Vec<User>)
+    pub fn collect_offers_from_users(list_of_users:&mut Vec<User>,sell_orders:&mut Vec<crate::double_auction::Order>)
     {
         for user in &mut *list_of_users
         {
@@ -231,6 +240,7 @@ pub mod auction_functions{
                     user.set_produced_amount_energy(amount_of_energy_for_sale);
                     randomly_set_price_for_energy_per_user(user);
                     user.set_price_per_energy();
+                    sell_orders.push(Order::new_order(user.get_user_id(), user.get_price_for_energy(), amount_of_energy_for_sale));
                 }
             }
         }
