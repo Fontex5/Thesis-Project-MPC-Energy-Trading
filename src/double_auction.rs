@@ -1,17 +1,37 @@
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub struct Order {
-    price: f32,
-    quantity: f32
+   pub price: f32,
+   pub quantity: f32,
+   pub user_id: i32
 }
 
-pub fn double_auction(mut buy_orders: Vec<Order>, mut sell_orders: Vec<Order>) -> Vec<(f32, f32)> {
-    let mut matched_trades = Vec::new();
+impl Order {
+    pub fn new_order(user_id:i32, price:f32, quantity:f32) ->Self
+    {
+        Self { price, quantity, user_id }
+    }
+}
+
+pub struct MatchedTrade
+{
+    pub buyer_id: i32,
+    pub seller_id: i32,
+    pub price: f32,
+    pub quantity:f32
+}
+
+impl MatchedTrade {
+    pub fn new_trade(buyer_id:i32, seller_id:i32, price:f32, quantity:f32) -> Self
+    {
+        Self {buyer_id,seller_id,price,quantity}
+    }
+}
+
+pub fn double_auction(buy_orders: &mut Vec<Order>, sell_orders:&mut Vec<Order>) -> Vec<MatchedTrade> {
+    let mut matched_trades:Vec<MatchedTrade> = Vec::new();
     buy_orders.sort_by(|a, b| b.price.partial_cmp(&a.price).unwrap());
-    println!("{:#?}",buy_orders);
-    println!("---------------------------------------------------");
     sell_orders.sort_by(|a, b| a.price.partial_cmp(&b.price).unwrap());
-    println!("{:#?}",sell_orders);
 
 
     while !buy_orders.is_empty() && !sell_orders.is_empty() {
@@ -21,7 +41,7 @@ pub fn double_auction(mut buy_orders: Vec<Order>, mut sell_orders: Vec<Order>) -
         if buy_order.price >= sell_order.price {
             let trade_price = (buy_order.price + sell_order.price) / 2.0;
             let trade_quantity = buy_order.quantity.min(sell_order.quantity);
-            matched_trades.push((trade_price, trade_quantity));
+            matched_trades.push(MatchedTrade::new_trade(buy_order.user_id, sell_order.user_id, trade_price, trade_quantity));
 
             buy_orders[0].quantity -= trade_quantity;
             sell_orders[0].quantity -= trade_quantity;
