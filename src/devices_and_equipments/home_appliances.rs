@@ -1,3 +1,4 @@
+#[derive(Copy, Clone)]
 pub struct Device
 {
     average_consumption_in_watts: i32, 
