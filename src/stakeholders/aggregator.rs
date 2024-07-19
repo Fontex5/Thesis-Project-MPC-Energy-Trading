@@ -1,6 +1,4 @@
-use std::io;
 use crate::utilities::double_auction::{self, double_auction};
-
 use super::household::Household;
 
 pub struct Aggregator
@@ -59,28 +57,4 @@ impl Aggregator
 
         cost
     }
-}
-
-pub fn get_price_from_electricity_provider() -> f32
-{
-    println!("Please enter the price offered by the\n electricity provider for 1Kwh (as a floating number): ");
-    let mut price = String::new();
-    io::stdin().read_line(&mut price).expect("Invalid value for the price"); 
-    let price: f32 = match price.trim().parse(){
-        Ok(num) => num,
-        Err(_) => 20.0, 
-    };
-    price
-}
-
-pub fn set_battery_capacity() -> f32
-{
-    println!("Please enter the Battery Capacity (in Kwh): ");
-    let mut battery_cap = String::new();
-    io::stdin().read_line(&mut battery_cap).expect("Invalid value for the battery capacity"); 
-    let battery_cap: f32 = match battery_cap.trim().parse(){
-        Ok(num) => num,
-        Err(_) => 100.0, 
-    };
-    battery_cap
 }

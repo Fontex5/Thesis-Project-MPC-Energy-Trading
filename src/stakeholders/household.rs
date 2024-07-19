@@ -176,8 +176,7 @@ impl Household{
             if self.check_if_usage_period_is_done(device,hour)
             {
                 //If the usage period is over, then it can be used again
-                let device_index = energy_functions::get_device_index(device);
-                self.array_of_devices_in_use[device_index] = false;
+                self.array_of_devices_in_use[device.get_position_index()] = false;
             }
             else 
             {
@@ -187,9 +186,7 @@ impl Household{
 
         if energy_functions::randomly_decide_usage_of_device(device,hour) 
         {
-            let device_index = energy_functions::get_device_index(device);
-
-            self.array_of_devices_in_use[device_index] = true;
+            self.array_of_devices_in_use[device.get_position_index()] = true;
             self.update_finishing_time_of_device(hour,device);
 
             return true;
@@ -202,14 +199,12 @@ impl Household{
 
     fn is_device_already_in_use(&self,device:&Appliances) ->bool
     {
-        let device_index = energy_functions::get_device_index(device);
-        self.array_of_devices_in_use[device_index]
+        self.array_of_devices_in_use[device.get_position_index()]
     }
 
     fn check_if_usage_period_is_done(&self, device:&Appliances, hour:u8)-> bool
     {
-        let device_index = energy_functions::get_device_index(device);
-        let when_device_will_be_done = self.hours_devices_are_done[device_index];
+        let when_device_will_be_done = self.hours_devices_are_done[device.get_position_index()];
 
         if when_device_will_be_done <= hour 
         {
@@ -226,7 +221,6 @@ impl Household{
         let finishing_hour = (usage_period + starting_hour as f32).ceil();
         let finishing_hour: u8 = (finishing_hour as u8) % 24;
         
-        let device_index = energy_functions::get_device_index(device);
-        self.hours_devices_are_done[device_index] = finishing_hour;
+        self.hours_devices_are_done[device.get_position_index()] = finishing_hour;
     }
 }

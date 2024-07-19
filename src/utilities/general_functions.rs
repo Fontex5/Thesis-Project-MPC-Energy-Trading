@@ -1,22 +1,6 @@
 pub mod energy_functions{
     use crate::devices_and_equipments::home_appliances::Appliances;
-    use crate::HOUR_IN_MINUTES;
     use rand::Rng;
-
-    pub fn get_device_index(device:&Appliances) -> usize
-    {
-        let device_index = match device.get_appliance_name().as_str() {
-            "Heat Pump" => 0,
-            "Refrigerator" => 1,
-            "Electric Vehicle" => 2,
-            "Washing Machine" => 3,
-            "Dishwashser" => 4,
-            "CookingStove" => 5,
-            _ => 6,
-        };
-
-        device_index
-    }
 
     pub fn randomly_decide_usage_of_device(item:&Appliances,hour:u8) -> bool
     {
@@ -70,13 +54,6 @@ pub mod energy_functions{
         };
 
         decision //If true the household will use the device
-    }
-
-    pub fn device_energy_consumption(device: &Appliances) -> f32
-     {    
-        let period: f32 = (device.get_avarage_usage_time() as f32)/ HOUR_IN_MINUTES;      
-        let consumed_watts = period * (device.get_average_consumption() as f32);
-        consumed_watts / 1000.0
     }
 }
 
