@@ -1,3 +1,5 @@
+use crate::HOUR_IN_MINUTES;
+
 #[derive(Copy, Clone)]
 pub struct Device
 {
@@ -72,5 +74,26 @@ impl Appliances
             Self::CookingStove(device) => device.get_avarage_usage_time(),
         }
     }
+
+    pub fn get_position_index(&self) -> usize
+    {
+        let device_index = match self {
+            Self::HeatPump(_) => 0,
+            Self::Refrigerator(_) => 1,
+            Self::ElectricVehicle(_) => 2,
+            Self::WashingMachine(_) => 3,
+            Self::Dishwasher(_) => 4,
+            Self::CookingStove(_) => 5,
+        };
+
+        device_index
+    }
+
+    pub fn get_energy_consumption(&self) -> f32
+    {    
+       let period: f32 = (self.get_avarage_usage_time() as f32)/ HOUR_IN_MINUTES;      
+       let consumed_watts = period * (self.get_average_consumption() as f32);
+       consumed_watts / 1000.0
+   }
 }
 

@@ -2,7 +2,7 @@ use rand::Rng;
 
 use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::household::Household};
 
-use super::{double_auction::{self, Order}, general_functions::energy_functions};
+use super::double_auction::{self, Order};
 
 pub struct Simulator<'a> {
     number_of_houses_in_neighborhood:u8,
@@ -35,7 +35,7 @@ impl<'a> Simulator<'a> {
         for household in &mut  *self.list_of_households{
             for device in &  self.array_of_appliances
             {
-                let device_energy_demand = energy_functions::device_energy_consumption(&device);
+                let device_energy_demand = device.get_energy_consumption();
                 if household.whether_to_use_device(&device,hour)
                 {          
                     total_consumed_amount += device_energy_demand;
@@ -69,7 +69,7 @@ impl<'a> Simulator<'a> {
             }
             for device in &self.array_of_appliances
             {
-                let device_energy_demand = energy_functions::device_energy_consumption(&device);
+                let device_energy_demand = device.get_energy_consumption();
                 if household.whether_to_use_device(&device, hour)
                 {
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
@@ -106,7 +106,7 @@ impl<'a> Simulator<'a> {
             }
             for device in &self.array_of_appliances
             {
-                let device_energy_demand = energy_functions::device_energy_consumption(&device);
+                let device_energy_demand = device.get_energy_consumption();
                 if household.whether_to_use_device(&device, hour)
                 {
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
