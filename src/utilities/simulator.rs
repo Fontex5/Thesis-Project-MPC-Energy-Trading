@@ -2,7 +2,7 @@ use rand::Rng;
 
 use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::household::Household};
 
-use super::double_auction::{self, Order};
+use super::double_auction::{MatchedTrade, Order};
 
 pub struct Simulator<'a> {
     number_of_houses_in_neighborhood:u8,
@@ -87,11 +87,10 @@ impl<'a> Simulator<'a> {
     }
 
     # [allow(non_snake_case)]
-    pub fn simulate_consumption_with_PVPanels_and_DA(&mut self, hour:u8, percentage_of_houses_with_pv:u8) ->(f32,Vec<Order>)
+    pub fn simulate_consumption_with_PVPanels_and_DA(&mut self, hour:u8, percen_houses_with_pv:u8, buy_orders:&mut Vec<Order>, sell_orders:&mut Vec<Order>) -> f32
     {
-        let mut buy_orders:Vec<double_auction::Order> = Vec::new();
         let mut total_unused_amount:f32 = 0.0;
-        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood) * (100 / percentage_of_houses_with_pv)) as i32;
+        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood) * (100 / percen_houses_with_pv)) as i32;
 
         let mut i = 0;
         for household in &mut  *self.list_of_households
@@ -120,7 +119,24 @@ impl<'a> Simulator<'a> {
                     total_unused_amount += device_energy_demand;
                 }
             }
+
+            //Check if household would like to sell energy
+            if household.whether_to_sell_energy()
+            {
+                sell_orders.push(household.offer_sell_order());
+            }
         }
-        (total_unused_amount,buy_orders)
+        total_unused_amount
+    }
+
+    pub fn decharge_houses_which_sold_energy(&mut self,matched_trades:&Vec<MatchedTrade>)
+    {
+        //This function is required since simulator has access to the list of households
+        //And, the list couldn't be accessed from Aggregator since it would be access from
+        //two different places
+        for trade in matched_trades
+        {
+            self.list_of_households[trade.seller_id as usize].decharge_battery(trade.quantity);
+        }
     }
 }

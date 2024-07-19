@@ -1,7 +1,8 @@
 use rand::Rng;
 use crate::devices_and_equipments::pv_panels::PVPanel;
+use crate::utilities::double_auction::Order;
 use crate::utilities::general_functions::energy_functions;
-use crate::devices_and_equipments::{battery::Battery, home_appliances::Appliances};
+use crate::devices_and_equipments::{battery,battery::Battery, home_appliances::Appliances};
 use crate::HOUR_IN_MINUTES;
 
 #[derive(Copy, Clone)]
@@ -141,6 +142,37 @@ impl Household{
             5..=29 => generator.gen_bool(0.2),
             _ => false,
         }
+    }
+
+    pub fn offer_sell_order(&self) -> Order
+    {
+        let selling_energy = battery::convert_percentage_to_energy(self.set_selling_percentage(), self.battery.get_capacity());
+        let price = self.set_selling_price() * selling_energy;
+        Order::new_order(self.id, price, selling_energy)
+    }
+
+    fn set_selling_percentage(&self) -> u8
+    {
+        let mut generator = rand::thread_rng();
+        let battery_percentage = self.battery.get_percentage();
+        
+        match battery_percentage {
+            70..=100 => generator.gen_range(50..battery_percentage),
+            30..=69 => generator.gen_range(20..battery_percentage),
+            5..=29 => generator.gen_range(2..battery_percentage),
+            _ => 0,
+        }
+    }
+
+    fn set_selling_price(&self) -> f32
+    {
+        let mut generator = rand::thread_rng();
+
+        let price = match self.battery.get_percentage() {
+            70..=100 => generator.gen_range(0.1..=1.0),
+            _ => generator.gen_range(0.5..=2.0),
+        };
+        price
     }
 
     pub fn generate_energy(&mut self)

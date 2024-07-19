@@ -1,5 +1,4 @@
-use crate::utilities::double_auction::{self, double_auction};
-use super::household::Household;
+use crate::utilities::double_auction::{MatchedTrade, Order};
 
 pub struct Aggregator
 {
@@ -32,29 +31,25 @@ impl Aggregator
         self.price_received_by_elec_provider * price_change
     }
 
-    pub fn calculate_cost_for_hour(&self, list_of_households:&mut Vec<Household>, hour:u8,buy_orders:&mut Vec<double_auction::Order>,sell_orders:&mut Vec<double_auction::Order>) -> f32
+    pub fn extract_consumption_and_cost(&self,hour:u8,matched_trades:& Vec<MatchedTrade>,buy_orders:&mut Vec<Order>) -> (f32,f32)
     {
-        double_auction::collect_offers_from_households(list_of_households, sell_orders);
-
         let mut cost:f32 = 0.0;
+        let mut consumed_from_elec_provider:f32 = 0.0;
 
-        let matched_trades = double_auction(buy_orders, sell_orders);
         for trade in matched_trades {
             let seller_id = trade.seller_id as usize;
 
             println!("Seller{} Trade with Buyer{} at price ${:.2}, quantity {}",seller_id,trade.buyer_id, trade.price, trade.quantity);
-            list_of_households[seller_id].set_produced_amount_energy(0.0);
-            list_of_households[seller_id].decharge_battery(trade.quantity);
-
             cost += trade.price * trade.quantity;
         }
 
         while !buy_orders.is_empty()
         {
             cost += buy_orders[0].quantity * self.get_provider_price(hour);
+            consumed_from_elec_provider += buy_orders[0].quantity;
             buy_orders.remove(0);
         }
 
-        cost
+    (consumed_from_elec_provider,cost)
     }
 }
