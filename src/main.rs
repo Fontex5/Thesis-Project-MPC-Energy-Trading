@@ -1,4 +1,4 @@
-use stakeholders::{household::Household,aggregator::Aggregator};
+use stakeholders::{household::Household,aggregator};
 use utilities::{double_auction,simulator::Simulator};
 
 pub mod devices_and_equipments;
@@ -15,7 +15,6 @@ fn main() {
     }
 
     let mut simulator = Simulator::initialize_simulator(&mut list_of_households,NUMBER_OF_HOUSES_IN_NEIGHBORHOOD);
-    let neighborhood_aggregator = Aggregator::initialize_aggregator(2.60);
     
     let mut total_saved_energy_without_pv:f32 = 0.0;
     let mut total_consumed_energy_without_pv:f32 = 0.0;
@@ -28,7 +27,7 @@ fn main() {
         total_consumed_energy_without_pv += _consumed;
         total_saved_energy_without_pv += _saved;
 
-        cost_of_supplying_consumed_energy_without_pv += _consumed * neighborhood_aggregator.get_provider_price(hour);    
+        cost_of_supplying_consumed_energy_without_pv += _consumed * aggregator::get_provider_price(hour);    
     }
 
     let mut total_saved_energy_with_pv:f32 = 0.0;
@@ -43,7 +42,7 @@ fn main() {
         total_consumed_energy_with_pv += _consumed;
 
 
-        total_cost_with_pv_panels += _consumed * neighborhood_aggregator.get_provider_price(hour);
+        total_cost_with_pv_panels += _consumed * aggregator::get_provider_price(hour);
     }
 
     let mut total_saved_energy_with_da:f32 = 0.0;
@@ -58,7 +57,7 @@ fn main() {
         let matched_trades = double_auction::double_auction(&mut buy_orders, &mut sell_orders);
         simulator.decharge_houses_which_sold_energy(&matched_trades);
 
-        let consumption_and_cost = neighborhood_aggregator.extract_consumption_and_cost(hour, &matched_trades, &mut buy_orders); 
+        let consumption_and_cost = aggregator::extract_consumption_and_cost(hour, &matched_trades, &mut buy_orders); 
         total_consumed_energy_with_da += consumption_and_cost.0; 
         total_cost_with_da += consumption_and_cost.1;
     }

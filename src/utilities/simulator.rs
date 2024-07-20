@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::household::Household};
+use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::{aggregator, household::Household}};
 
 use super::double_auction::{MatchedTrade, Order};
 
@@ -110,7 +110,8 @@ impl<'a> Simulator<'a> {
                 {
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
-                        let price:f32 = rand::thread_rng().gen_range(0.0..=2.0) * device_energy_demand;
+                        let maximum_price = aggregator::get_provider_price(hour);
+                        let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price) * device_energy_demand;
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }
                 }
@@ -123,7 +124,7 @@ impl<'a> Simulator<'a> {
             //Check if household would like to sell energy
             if household.whether_to_sell_energy()
             {
-                sell_orders.push(household.offer_sell_order());
+                sell_orders.push(household.offer_sell_order(hour));
             }
         }
         total_unused_amount
