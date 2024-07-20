@@ -63,7 +63,16 @@ impl<'a> Simulator<'a> {
             {
                 if PVPanel::can_pv_panel_produce_energy(hour)
                 {
-                    household.generate_energy();
+                    if !household.is_battery_full()
+                    {
+                        household.generate_energy();
+                    }
+                    else 
+                    {
+                        //household cannot save the generated energy and cause imbalance
+                        //in the grid, therefore, the generated energy is take for free
+                        total_consumed_amount -= household.get_generated_energy();
+                    }
                 }
                 i += 1;
             }
@@ -99,7 +108,16 @@ impl<'a> Simulator<'a> {
             {
                 if PVPanel::can_pv_panel_produce_energy(hour)
                 {
-                    household.generate_energy();
+                    if !household.is_battery_full()
+                    {
+                        household.generate_energy();
+                    }
+                    else 
+                    {
+                        //household cannot save the generated energy and cause imbalance
+                        //in the grid, therefore, the generated energy is take for free
+                        sell_orders.push(Order::new_order(household.get_household_id(), 0.0, household.get_generated_energy()));
+                    }
                 }
                 i += 1;
             }

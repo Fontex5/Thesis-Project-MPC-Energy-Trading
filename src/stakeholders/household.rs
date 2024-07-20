@@ -132,6 +132,11 @@ impl Household{
         self.charge_battery(generated_energy); 
     }
 
+    pub fn get_generated_energy(&self)->f32
+    {
+        self.pv_panels.calculate_produced_energy(60)
+    }
+
     pub fn is_demanded_energy_suppliable(&mut self,demanded_energy:f32) ->bool
     {
         if self.battery.get_percentage() == 0
