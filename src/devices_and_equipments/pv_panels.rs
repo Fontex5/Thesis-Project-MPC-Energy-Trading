@@ -1,4 +1,4 @@
-use crate::{stakeholders::household::Household, HOUR_IN_MINUTES};
+use crate::HOUR_IN_MINUTES;
 #[derive(Copy, Clone)]
 pub struct PVPanel {
     number_of_panels:u16,
@@ -27,21 +27,4 @@ impl PVPanel{
         let produced_watts = period * (self.number_of_panels as f32) * self.energy_produced_by_one_panel;
         produced_watts / 1000.0
     }
-}
-
-pub fn deduct_produced_energy_from_consumption(household:& mut Household, produced_energy:f32) -> f32
-{
-    let remainder_energy = produced_energy - household.get_consumed_amount_of_energy();
-
-    if remainder_energy >= 0.0 
-    {
-        //The house's energy usage is covered by the PV panel
-        household.set_consumed_amount_energy(0.0);
-    }
-    else {
-        let consumed_energy = remainder_energy * -1.0;
-        household.set_consumed_amount_energy(consumed_energy);
-    }
-
-    remainder_energy
 }

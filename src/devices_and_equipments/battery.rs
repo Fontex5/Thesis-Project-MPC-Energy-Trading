@@ -21,12 +21,6 @@ impl Battery
         self.percentage += ((received_charge * 100.0 as f32) / self.capacity).ceil() as u8
     }
 
-    pub fn calculate_reuqired_energy_to_be_full(&self) -> f32
-    {
-        let remaining_percentage = 100 - self.percentage;
-        ((remaining_percentage as f32) / 100.0) * self.capacity 
-    }
-
     pub fn is_battery_full(&self) -> bool
     {
         match self.percentage{

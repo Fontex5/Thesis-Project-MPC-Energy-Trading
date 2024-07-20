@@ -13,7 +13,6 @@ fn main() {
     for i in 0.. NUMBER_OF_HOUSES_IN_NEIGHBORHOOD {
         list_of_households.push(Household::initialize_household(i as i32, 40.0, 10));
     }
-
     let mut simulator = Simulator::initialize_simulator(&mut list_of_households,NUMBER_OF_HOUSES_IN_NEIGHBORHOOD);
     
     let mut total_saved_energy_without_pv:f32 = 0.0;

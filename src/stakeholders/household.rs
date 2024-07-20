@@ -10,11 +10,7 @@ use super::aggregator;
 #[derive(Copy, Clone)]
 pub struct Household {
     id : i32,
-    saved_amount_energy: f32,
-    consumed_amount_energy:f32,
-    produced_amount_energy:f32,
     price_for_energy: f32,
-    price_per_energy: f32,
     array_of_devices_in_use:[bool;6],
     hours_devices_are_done:[u8;6],
     pv_panels:PVPanel,
@@ -25,45 +21,12 @@ impl Household{
 
     pub fn initialize_household(id:i32,battery_capacity:f32, number_of_equiped_pv_panels:u16) ->Self
     {
-        Self {  id, saved_amount_energy: 0.0,
-                consumed_amount_energy: 0.0,
-                produced_amount_energy: 0.0,
+        Self {  id,
                 price_for_energy:0.0, 
-                price_per_energy:0.0,
                 array_of_devices_in_use:[false;6],
                 hours_devices_are_done:[0;6],
                 pv_panels:PVPanel::equip_household_with_pv_panels(number_of_equiped_pv_panels,300.0),
                 battery: Battery::initialize_battery(battery_capacity) }
-    }
-
-    pub fn set_saved_amount_energy(&mut self, saved_amount: f32)
-    {
-        self.saved_amount_energy = saved_amount;
-    }
-
-    pub fn get_saved_amount_of_energy(&self) -> f32
-    {
-        self.saved_amount_energy
-    }
-
-    pub fn set_consumed_amount_energy(&mut self, consumed_amount: f32)
-    {
-        self.consumed_amount_energy = consumed_amount;
-    }
-
-    pub fn get_consumed_amount_of_energy(&self) -> f32
-    {
-        self.consumed_amount_energy
-    }
-
-    pub fn set_produced_amount_energy(&mut self, produced_amount:f32)
-    {
-        self.produced_amount_energy = produced_amount;
-    }
-
-    pub fn get_produced_amount_of_energy(&self) -> f32
-    {
-        self.produced_amount_energy
     }
 
     pub fn get_household_id(&self) -> i32
@@ -79,16 +42,6 @@ impl Household{
     pub fn get_price_for_energy(&self) ->f32
     {
         self.price_for_energy
-    }
-
-    pub fn set_price_per_energy(&mut self)
-    {
-        self.price_per_energy =  self.price_for_energy / self.produced_amount_energy;
-    }
-
-    pub fn get_price_per_energy(&self) -> f32
-    {
-        self.price_per_energy
     }
 
     pub fn get_finishing_hour_of_device(&self,device_index:usize) -> u8
@@ -128,11 +81,6 @@ impl Household{
     pub fn decharge_battery(&mut self, energy:f32)
     {
         self.battery.decharge(energy);
-    }
-
-    pub fn get_required_energy_to_full_battery(&self) -> f32
-    {
-        self.battery.calculate_reuqired_energy_to_be_full()
     }
     
     pub fn whether_to_sell_energy(&self) -> bool
