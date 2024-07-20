@@ -5,6 +5,8 @@ use crate::utilities::general_functions::energy_functions;
 use crate::devices_and_equipments::{battery,battery::Battery, home_appliances::Appliances};
 use crate::HOUR_IN_MINUTES;
 
+use super::aggregator;
+
 #[derive(Copy, Clone)]
 pub struct Household {
     id : i32,
@@ -144,10 +146,10 @@ impl Household{
         }
     }
 
-    pub fn offer_sell_order(&self) -> Order
+    pub fn offer_sell_order(&self,hour:u8) -> Order
     {
         let selling_energy = battery::convert_percentage_to_energy(self.set_selling_percentage(), self.battery.get_capacity());
-        let price = self.set_selling_price() * selling_energy;
+        let price = self.set_selling_price(hour) * selling_energy;
         Order::new_order(self.id, price, selling_energy)
     }
 
@@ -164,13 +166,14 @@ impl Household{
         }
     }
 
-    fn set_selling_price(&self) -> f32
+    fn set_selling_price(&self,hour:u8) -> f32
     {
+        let maximum_price = aggregator::get_provider_price(hour);
         let mut generator = rand::thread_rng();
 
         let price = match self.battery.get_percentage() {
-            70..=100 => generator.gen_range(0.1..=1.0),
-            _ => generator.gen_range(0.5..=2.0),
+            70..=100 => generator.gen_range(0.1..maximum_price),
+            _ => generator.gen_range(0.5..=maximum_price),
         };
         price
     }
