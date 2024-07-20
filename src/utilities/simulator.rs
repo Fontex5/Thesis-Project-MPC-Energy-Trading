@@ -50,11 +50,11 @@ impl<'a> Simulator<'a> {
     }
 
     # [allow(non_snake_case)]
-    pub fn simulate_consumption_with_PVPanels(&mut self, hour:u8, percentage_of_houses_with_pv:u8) -> (f32,f32)
+    pub fn simulate_consumption_with_PVPanels(&mut self, hour:u8, percen_houses_with_pv:u8) -> (f32,f32)
     {
         let mut total_unused_amount:f32 = 0.0;
         let mut total_consumed_amount:f32 = 0.0;
-        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood) * (100 / percentage_of_houses_with_pv)) as i32;
+        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood as f32) * (percen_houses_with_pv as f32 / 100.0)).ceil() as i32;
 
         let mut i = 0;
         for household in &mut  *self.list_of_households
@@ -90,7 +90,7 @@ impl<'a> Simulator<'a> {
     pub fn simulate_consumption_with_PVPanels_and_DA(&mut self, hour:u8, percen_houses_with_pv:u8, buy_orders:&mut Vec<Order>, sell_orders:&mut Vec<Order>) -> f32
     {
         let mut total_unused_amount:f32 = 0.0;
-        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood) * (100 / percen_houses_with_pv)) as i32;
+        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood as f32) * (percen_houses_with_pv as f32 / 100.0)).ceil() as i32;
 
         let mut i = 0;
         for household in &mut  *self.list_of_households
