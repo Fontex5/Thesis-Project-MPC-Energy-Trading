@@ -148,6 +148,60 @@ impl<'a> Simulator<'a> {
         total_unused_amount
     }
 
+    pub fn simulate_consumption(&mut self, hour:u8, percen_houses_with_pv:u8, buy_orders:&mut Vec<Order>, sell_orders:&mut Vec<Order>)->(f32,f32)
+    {
+        let mut consumption_without_pv:f32 = 0.0;
+        let mut consumption_with_pv:f32 = 0.0;
+        let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood as f32) * (percen_houses_with_pv as f32 / 100.0)).ceil() as i32;
+        let maximum_price = aggregator::get_provider_price(hour);
+
+        let mut i = 0;
+        for household in &mut  *self.list_of_households
+        {
+            if i < number_of_houses_with_pv
+            {
+                if PVPanel::can_pv_panel_produce_energy(hour)
+                {
+                    if !household.is_battery_full()
+                    {
+                        household.generate_energy();
+                    }
+                    else 
+                    {
+                        //household cannot save the generated energy and cause imbalance
+                        //in the grid, therefore, the generated energy is take for free
+                        sell_orders.push(Order::new_order(household.get_household_id(), 0.0, household.get_generated_energy()));
+                        consumption_with_pv -= household.get_generated_energy();
+                    }
+                }
+                i += 1;
+            }
+            for device in &self.array_of_appliances
+            {
+                let device_energy_demand = device.get_energy_consumption();
+                if household.whether_to_use_device(&device, hour)
+                {
+                    consumption_without_pv += device_energy_demand;
+                    if !household.is_demanded_energy_suppliable(device_energy_demand)
+                    {
+                        consumption_with_pv += device_energy_demand;
+ 
+                        //let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price) * device_energy_demand;
+                        let price = maximum_price * device_energy_demand;
+                        buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
+                    }
+                }
+            }
+
+            //Check if household would like to sell energy
+            if household.whether_to_sell_energy()
+            {
+                sell_orders.push(household.offer_sell_order(hour));
+            }
+        }
+        (consumption_without_pv,consumption_with_pv)
+    }
+
     pub fn decharge_houses_which_sold_energy(&mut self,matched_trades:&Vec<MatchedTrade>)
     {
         //This function is required since simulator has access to the list of households

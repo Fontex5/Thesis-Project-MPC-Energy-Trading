@@ -15,60 +15,45 @@ fn main() {
     }
     let mut simulator = Simulator::initialize_simulator(&mut list_of_households,NUMBER_OF_HOUSES_IN_NEIGHBORHOOD);
     
-    let mut total_saved_energy_without_pv:f32 = 0.0;
     let mut total_consumed_energy_without_pv:f32 = 0.0;
-    let mut cost_of_supplying_consumed_energy_without_pv:f32 = 0.0;
-    for hour in 0..24 {
-        let mut _saved:f32 = 0.0;
-        let mut _consumed:f32 = 0.0;
+    let mut total_cost_without_pv_panels:f32 = 0.0;
 
-        (_saved,_consumed) = simulator.simulate_consumption_no_criterias(hour);
-        total_consumed_energy_without_pv += _consumed;
-        total_saved_energy_without_pv += _saved;
 
-        cost_of_supplying_consumed_energy_without_pv += _consumed * aggregator::get_provider_price(hour);    
-    }
-
-    let mut total_saved_energy_with_pv:f32 = 0.0;
     let mut total_consumed_energy_with_pv:f32 = 0.0;
     let mut total_cost_with_pv_panels:f32 = 0.0;  
-    for hour in 0..24 {
-        let mut _saved:f32 = 0.0;
-        let mut _consumed:f32 = 0.0;
-
-        (_saved,_consumed) = simulator.simulate_consumption_with_PVPanels(hour,20);
-        total_saved_energy_with_pv += _saved;
-        total_consumed_energy_with_pv += _consumed;
 
 
-        total_cost_with_pv_panels += _consumed * aggregator::get_provider_price(hour);
-    }
-
-    let mut total_saved_energy_with_da:f32 = 0.0;
     let mut total_consumed_energy_with_da:f32 = 0.0;
     let mut total_cost_with_da:f32 = 0.0;
     for hour in 0..24 {
         let mut sell_orders:Vec<double_auction::Order> = Vec::new();
         let mut buy_orders:Vec<double_auction::Order> = Vec::new();
 
-        total_saved_energy_with_da += simulator.simulate_consumption_with_PVPanels_and_DA(hour,20, &mut buy_orders, &mut sell_orders);
+        let consumed_amounts = simulator.simulate_consumption(hour,20, &mut buy_orders, &mut sell_orders);
+
+        total_consumed_energy_without_pv += consumed_amounts.0;
+        total_cost_without_pv_panels += consumed_amounts.0 * aggregator::get_provider_price(hour);
+
+        total_consumed_energy_with_pv += consumed_amounts.1;
+        total_cost_with_pv_panels += consumed_amounts.1 * aggregator::get_provider_price(hour);
+        
 
         let matched_trades = double_auction::double_auction(&mut buy_orders, &mut sell_orders);
         simulator.decharge_houses_which_sold_energy(&matched_trades);
 
-        let consumption_and_cost = aggregator::extract_consumption_and_cost(hour, &matched_trades, &mut buy_orders); 
-        total_consumed_energy_with_da += consumption_and_cost.0; 
-        total_cost_with_da += consumption_and_cost.1;
+        let da_consumption_and_cost = aggregator::extract_consumption_and_cost(hour, &matched_trades, &mut buy_orders); 
+        total_consumed_energy_with_da += da_consumption_and_cost.0; 
+        total_cost_with_da += da_consumption_and_cost.1;
     }
 
     println!("==========================================================================================");
-    println!("Total amount of consumed energy without PV panels: {}kWh\nTotal amount of saved energy without PV panels: {}kWh", total_consumed_energy_without_pv, total_saved_energy_without_pv);
-    println!("Supplying the consumed energy costs {}DKK using the energy provider",cost_of_supplying_consumed_energy_without_pv);
+    println!("Total amount of consumed energy without PV panels: {}kWh", total_consumed_energy_without_pv);
+    println!("Supplying the consumed energy costs {}DKK using the energy provider",total_cost_without_pv_panels);
     println!("==========================================================================================");
-    println!("Total amount of consumed energy with PV panels: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_pv, total_saved_energy_with_pv);
+    println!("Total amount of consumed energy with PV panels: {}kWh", total_consumed_energy_with_pv);
     println!("Supplying the consumed energy costs {}DKK using the energy provider",total_cost_with_pv_panels);
     println!("==========================================================================================");
-    println!("Total amount of consumed energy with Double Auction: {}kWh\nTotal amount of saved energy with PV panels: {}kWh", total_consumed_energy_with_da, total_saved_energy_with_da);
+    println!("Total amount of consumed energy with Double Auction: {}kWh", total_consumed_energy_with_da);
     println!("With Double Auction and electricity provider, the cost is: {}DKK",total_cost_with_da);
 
 }

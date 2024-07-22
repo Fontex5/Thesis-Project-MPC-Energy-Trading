@@ -20,9 +20,7 @@ pub fn extract_consumption_and_cost(hour:u8,matched_trades:& Vec<MatchedTrade>,b
     let mut consumed_from_elec_provider:f32 = 0.0;
 
     for trade in matched_trades {
-        let seller_id = trade.seller_id as usize;
-
-        println!("Seller {} sold {:.2}kWh to Buyer {} for {:.2}DKK",seller_id,trade.quantity,trade.buyer_id, trade.price);
+        println!("Seller {} sold {:.2}kWh to Buyer {} for {:.2}DKK",trade.seller_id,trade.quantity,trade.buyer_id, trade.price);
         cost += trade.price; //The prices are for the whole traded energy
     }
 
