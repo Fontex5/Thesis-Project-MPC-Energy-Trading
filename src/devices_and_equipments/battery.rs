@@ -3,6 +3,7 @@ pub struct Battery
 {
     capacity: f32,
     percentage: u8,
+    state_of_charge: f32,
 }
 
 impl Battery
@@ -12,14 +13,22 @@ impl Battery
     {
         Self
         {
-            capacity,percentage:0
+            capacity,
+            percentage:0,
+            state_of_charge:0.0
         }
     }
 
     pub fn charge(&mut self, received_charge:f32)
     {
-        self.percentage += ((received_charge * 100.0 as f32) / self.capacity).ceil() as u8
+        self.state_of_charge += received_charge;
+        self.update_percentage();
     }
+
+    fn update_percentage(&mut self)
+    {
+        self.percentage = ((self.state_of_charge * 100.0 as f32) / self.capacity) as u8;
+    }   
 
     pub fn is_battery_full(&self) -> bool
     {
@@ -41,13 +50,13 @@ impl Battery
 
     pub fn decharge(&mut self, used_energy:f32)
     {
-        let used_percentage = convert_energy_to_percentage(used_energy, self.capacity);
-        self.percentage = self.percentage - used_percentage;
+        self.state_of_charge -= used_energy;
+        self.update_percentage();
     }
 
-    pub fn state_of_charge(&self) -> f32
+    pub fn get_state_of_charge(&self) -> f32
     {
-        (self.percentage as f32 * self.capacity)/100.0 as f32
+        self.state_of_charge
     }
 }
 

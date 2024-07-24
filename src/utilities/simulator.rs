@@ -186,8 +186,7 @@ impl<'a> Simulator<'a> {
                     {
                         consumption_with_pv += device_energy_demand;
  
-                        //let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price) * device_energy_demand;
-                        let price = maximum_price * device_energy_demand;
+                        let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price);
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }
                 }

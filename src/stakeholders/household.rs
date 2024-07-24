@@ -76,7 +76,7 @@ impl Household{
 
     pub fn get_battery_state_of_charge(&self) -> f32
     {
-        self.battery.state_of_charge()
+        self.battery.get_state_of_charge()
     }
     pub fn decharge_battery(&mut self, energy:f32)
     {
@@ -97,7 +97,7 @@ impl Household{
     pub fn offer_sell_order(&self,hour:u8) -> Order
     {
         let selling_energy = battery::convert_percentage_to_energy(self.set_selling_percentage(), self.battery.get_capacity());
-        let price = self.set_selling_price(hour) * selling_energy;
+        let price = self.set_selling_price(hour);
         Order::new_order(self.id, price, selling_energy)
     }
 
@@ -145,7 +145,7 @@ impl Household{
         }
         else 
         {
-            if self.battery.state_of_charge() >= demanded_energy
+            if self.battery.get_state_of_charge() >= demanded_energy
             {
                 self.decharge_battery(demanded_energy);
                 return true;
