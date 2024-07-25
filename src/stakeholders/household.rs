@@ -103,6 +103,7 @@ impl Household{
 
     fn set_selling_percentage(&self) -> u8
     {
+        //Set the price for 1 kWh of energy
         let mut generator = rand::thread_rng();
         let battery_percentage = self.battery.get_percentage();
         

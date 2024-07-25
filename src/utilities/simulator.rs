@@ -128,6 +128,7 @@ impl<'a> Simulator<'a> {
                 {
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
+                        //Set the price for 1 kWh of energy
                         let maximum_price = aggregator::get_provider_price(hour);
                         let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price) * device_energy_demand;
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));

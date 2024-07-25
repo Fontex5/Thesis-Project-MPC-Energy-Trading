@@ -21,7 +21,7 @@ pub fn extract_consumption_and_cost(hour:u8,matched_trades:& Vec<MatchedTrade>,b
 
     for trade in matched_trades {
         println!("Seller {} sold {:.2}kWh to Buyer {} for {:.2}DKK",trade.seller_id,trade.quantity,trade.buyer_id, trade.price);
-        cost += trade.price * trade.quantity; //The prices are for the whole traded energy
+        cost += trade.price * trade.quantity;
     }
 
     while !buy_orders.is_empty()
