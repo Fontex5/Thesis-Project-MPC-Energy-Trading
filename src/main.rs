@@ -47,13 +47,13 @@ fn main() {
     }
 
     println!("==========================================================================================");
-    println!("Total amount of consumed energy without PV panels: {}kWh", total_consumed_energy_without_pv);
-    println!("Supplying the consumed energy costs {}DKK using the energy provider",total_cost_without_pv_panels);
+    println!("Total amount of consumed energy without PV panels: {:.2}kWh", total_consumed_energy_without_pv);
+    println!("Supplying the consumed energy costs {:.2}DKK using the energy provider",total_cost_without_pv_panels);
     println!("==========================================================================================");
-    println!("Total amount of consumed energy with PV panels: {}kWh", total_consumed_energy_with_pv);
-    println!("Supplying the consumed energy costs {}DKK using the energy provider",total_cost_with_pv_panels);
+    println!("Total amount of consumed energy with PV panels: {:.2}kWh", total_consumed_energy_with_pv);
+    println!("Supplying the consumed energy costs {:.2}DKK using the energy provider",total_cost_with_pv_panels);
     println!("==========================================================================================");
-    println!("Total amount of consumed energy with Double Auction: {}kWh", total_consumed_energy_with_da);
-    println!("With Double Auction and electricity provider, the cost is: {}DKK",total_cost_with_da);
+    println!("Total amount of consumed energy with Double Auction: {:.2}kWh", total_consumed_energy_with_da);
+    println!("With Double Auction and electricity provider, the cost is: {:.2}DKK",total_cost_with_da);
 
 }
