@@ -31,7 +31,7 @@ pub enum Appliances
 {
     HeatPump(Device),
     Refrigerator(Device),
-    ElectricVehicle(Device),
+    TV(Device),
     WashingMachine(Device),
     Dishwasher(Device),
     CookingStove(Device)
@@ -44,7 +44,7 @@ impl Appliances
         match self {
             Self::HeatPump(device) => device.get_average_consumption(),
             Self::Refrigerator(device) => device.get_average_consumption(),
-            Self::ElectricVehicle(device) => device.get_average_consumption(),
+            Self::TV(device) => device.get_average_consumption(),
             Self::WashingMachine(device) => device.get_average_consumption(),
             Self::Dishwasher(device) => device.get_average_consumption(),
             Self::CookingStove(device) => device.get_average_consumption(),
@@ -56,7 +56,7 @@ impl Appliances
         match self{
             Self::HeatPump(_) => String::from("Heat Pump"),
             Self::Refrigerator(_) => String::from("Refrigerator"),
-            Self::ElectricVehicle(_) => String::from("Electric Vehicle"),
+            Self::TV(_) => String::from("TV"),
             Self::WashingMachine(_) => String::from("Washing Machine"),
             Self::Dishwasher(_) => String::from("Dishwashser"),
             Self::CookingStove(_) => String::from("CookingStove"),
@@ -68,7 +68,7 @@ impl Appliances
         match self {
             Self::HeatPump(device) => device.get_avarage_usage_time(),
             Self::Refrigerator(device) => device.get_avarage_usage_time(),
-            Self::ElectricVehicle(device) => device.get_avarage_usage_time(),
+            Self::TV(device) => device.get_avarage_usage_time(),
             Self::WashingMachine(device) => device.get_avarage_usage_time(),
             Self::Dishwasher(device) => device.get_avarage_usage_time(),
             Self::CookingStove(device) => device.get_avarage_usage_time(),
@@ -80,7 +80,7 @@ impl Appliances
         let device_index = match self {
             Self::HeatPump(_) => 0,
             Self::Refrigerator(_) => 1,
-            Self::ElectricVehicle(_) => 2,
+            Self::TV(_) => 2,
             Self::WashingMachine(_) => 3,
             Self::Dishwasher(_) => 4,
             Self::CookingStove(_) => 5,
