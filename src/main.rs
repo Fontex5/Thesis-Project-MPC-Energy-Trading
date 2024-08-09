@@ -25,6 +25,11 @@ fn main() {
 
     let mut total_consumed_energy_with_da:f32 = 0.0;
     let mut total_cost_with_da:f32 = 0.0;
+
+    if let Err(err) = csv_handler::initialize_csv_output("consumption_without_pv.csv",&vec!["hour","consumption"]) {
+        println!("{}", err);
+    }
+
     for hour in 0..24 {
         let mut sell_orders:Vec<double_auction::Order> = Vec::new();
         let mut buy_orders:Vec<double_auction::Order> = Vec::new();
@@ -56,4 +61,58 @@ fn main() {
     println!("Total amount of consumed energy with Double Auction: {:.2}kWh", total_consumed_energy_with_da);
     println!("With Double Auction and electricity provider, the cost is: {:.2}DKK",total_cost_with_da);
 
+}
+
+pub mod csv_handler
+{
+    use csv::Writer;
+    use std::fs::OpenOptions;
+    use std::error::Error;
+
+    pub fn initialize_csv_output(file_name:&str,data_type:&Vec<&str>) -> Result<(), Box<dyn Error>>
+    {
+        let mut wtr = Writer::from_path(file_name)?;
+        //let mut wtr = csv::Writer::from_writer(io::stdout());
+        // Since we're writing records manually, we must explicitly write our
+        // header record. A header record is written the same way that other
+        // records are written.
+        wtr.write_record(data_type)?;
+
+        // A CSV writer maintains an internal buffer, so it's important
+        // to flush the buffer when you're done.
+        wtr.flush()?;
+        Ok(())
+    }
+
+    pub fn write_household_consumption_to_csv(file_name:&str,record:(i32,u8,f32)) -> Result<(), Box<dyn Error>>
+    {
+        let file = OpenOptions::new().append(true).open(file_name)?;
+        let mut wtr = Writer::from_writer(file);
+        //let mut wtr = csv::Writer::from_writer(io::stdout());
+        // Since we're writing records manually, we must explicitly write our
+        // header record. A header record is written the same way that other
+        // records are written.
+        wtr.serialize(record)?;
+    
+        // A CSV writer maintains an internal buffer, so it's important
+        // to flush the buffer when you're done.
+        wtr.flush()?;
+        Ok(())
+    }
+
+    pub fn write_total_consumption_to_csv(file_name:&str,record:(u8,f32)) -> Result<(), Box<dyn Error>>
+    {
+        let file = OpenOptions::new().append(true).open(file_name)?;
+        let mut wtr = Writer::from_writer(file);
+        //let mut wtr = csv::Writer::from_writer(io::stdout());
+        // Since we're writing records manually, we must explicitly write our
+        // header record. A header record is written the same way that other
+        // records are written.
+        wtr.serialize(record)?;
+    
+        // A CSV writer maintains an internal buffer, so it's important
+        // to flush the buffer when you're done.
+        wtr.flush()?;
+        Ok(())
+    }
 }

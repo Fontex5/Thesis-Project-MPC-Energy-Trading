@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::{aggregator, household::Household}};
+use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::{aggregator, household::Household}, csv_handler};
 
 use super::double_auction::{MatchedTrade, Order};
 
@@ -153,6 +153,7 @@ impl<'a> Simulator<'a> {
     {
         let mut consumption_without_pv:f32 = 0.0;
         let mut consumption_with_pv:f32 = 0.0;
+        let mut household_consumption:f32 = 0.0;
         let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood as f32) * (percen_houses_with_pv as f32 / 100.0)).ceil() as i32;
         let maximum_price = aggregator::get_provider_price(hour);
 
@@ -183,10 +184,10 @@ impl<'a> Simulator<'a> {
                 if household.whether_to_use_device(&device, hour)
                 {
                     consumption_without_pv += device_energy_demand;
+                    household_consumption += device_energy_demand;
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
                         consumption_with_pv += device_energy_demand;
- 
                         let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price);
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }
@@ -198,6 +199,11 @@ impl<'a> Simulator<'a> {
             {
                 sell_orders.push(household.offer_sell_order(hour));
             }
+            
+        }
+
+        if let Err(err) = csv_handler::write_total_consumption_to_csv("consumption_without_pv.csv",(hour, consumption_without_pv)) {
+            println!("{}", err);
         }
         (consumption_without_pv,consumption_with_pv)
     }
