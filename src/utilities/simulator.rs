@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::{devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::{aggregator, household::Household}, csv_handler};
+use crate::{csv_handler, devices_and_equipments::{home_appliances::{Appliances, Device}, pv_panels::PVPanel}, stakeholders::{aggregator, household::Household}, FEED_IN_TARIFF};
 
 use super::double_auction::{MatchedTrade, Order};
 
@@ -188,7 +188,7 @@ impl<'a> Simulator<'a> {
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
                         consumption_with_pv += device_energy_demand;
-                        let price:f32 = rand::thread_rng().gen_range(0.1..maximum_price);
+                        let price:f32 = rand::thread_rng().gen_range(FEED_IN_TARIFF..maximum_price);
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }
                 }

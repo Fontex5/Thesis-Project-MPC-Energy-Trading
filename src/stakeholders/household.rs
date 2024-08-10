@@ -3,7 +3,7 @@ use crate::devices_and_equipments::pv_panels::PVPanel;
 use crate::utilities::double_auction::Order;
 use crate::utilities::general_functions::energy_functions;
 use crate::devices_and_equipments::{battery,battery::Battery, home_appliances::Appliances};
-use crate::HOUR_IN_MINUTES;
+use crate::{FEED_IN_TARIFF, HOUR_IN_MINUTES};
 
 use super::aggregator;
 
@@ -122,7 +122,7 @@ impl Household{
 
         let price = match self.battery.get_percentage() {
             70..=100 => generator.gen_range(0.1..maximum_price),
-            _ => generator.gen_range(0.5..=maximum_price),
+            _ => generator.gen_range(FEED_IN_TARIFF..=maximum_price),
         };
         price
     }

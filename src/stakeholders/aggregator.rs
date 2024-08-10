@@ -2,16 +2,34 @@ use crate::utilities::double_auction::{MatchedTrade, Order};
 
 pub fn get_provider_price(hour:u8) ->f32
 {
-    let base_price:f32 = 2.60;
-    let price_change:f32 = match hour 
+    match hour 
         {
-            6..=12 => 1.2,
-            13..=18 => 1.4,
-            19..=23 => 0.8,
-            0..=5 => 0.4,
-            _ => 1.0,
-        };
-        base_price * price_change
+            0 => 2.04,
+            1 => 1.97,
+            2 => 1.93,
+            3 => 1.97,
+            4 => 2.00,
+            5 => 2.16,
+            6 => 2.41,
+            7 => 2.42,
+            8 => 2.25,
+            9 => 2.06,
+            10 => 1.92,
+            11 => 1.81,
+            12 => 1.62,
+            13 => 1.56,
+            14 => 1.71,
+            15 => 1.88,
+            16 => 2.03,
+            17 => 2.41,
+            18 => 2.42,
+            19 => 2.55,
+            20 => 2.82,
+            21 => 2.48,
+            22 => 2.28,
+            23 => 2.19,
+            _ => 2.12,
+        }
 }
 
 pub fn extract_consumption_and_cost(hour:u8,matched_trades:& Vec<MatchedTrade>,buy_orders:&mut Vec<Order>) -> (f32,f32)

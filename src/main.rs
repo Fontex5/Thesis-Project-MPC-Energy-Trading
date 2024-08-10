@@ -5,7 +5,8 @@ pub mod devices_and_equipments;
 pub mod stakeholders;
 pub mod utilities;
 
-const HOUR_IN_MINUTES:f32 = 60.0; 
+const HOUR_IN_MINUTES:f32 = 60.0;
+const FEED_IN_TARIFF:f32 = 0.58; 
 fn main() {
 
     const NUMBER_OF_HOUSES_IN_NEIGHBORHOOD: u8 = 50;
