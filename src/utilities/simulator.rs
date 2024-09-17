@@ -17,10 +17,10 @@ impl<'a> Simulator<'a> {
             number_of_houses_in_neighborhood:n_houses,
             list_of_households:households,
             array_of_appliances:[
-                Appliances::HeatPump(Device::set_device(3000, 45)),
+                Appliances::HeatPump(Device::set_device(3000, 65)),
                 Appliances::Refrigerator(Device::set_device(150, 15)),
                 Appliances::TV(Device::set_device(120, 45)),
-                Appliances::WashingMachine(Device::set_device(1000, 60)),
+                Appliances::WashingMachine(Device::set_device(1000, 90)),
                 Appliances::Dishwasher(Device::set_device(1500, 120)),
                 Appliances::CookingStove(Device::set_device(1500, 20))
             ]
@@ -153,7 +153,8 @@ impl<'a> Simulator<'a> {
     {
         let mut consumption_without_pv:f32 = 0.0;
         let mut consumption_with_pv:f32 = 0.0;
-        let mut household_consumption:f32 = 0.0;
+        let mut household_with_pv:f32 = 0.0;
+        let mut household_without_pv:f32 = 0.0;
         let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood as f32) * (percen_houses_with_pv as f32 / 100.0)).ceil() as i32;
         let maximum_price = aggregator::get_provider_price(hour);
 
@@ -184,10 +185,11 @@ impl<'a> Simulator<'a> {
                 if household.whether_to_use_device(&device, hour)
                 {
                     consumption_without_pv += device_energy_demand;
-                    household_consumption += device_energy_demand;
+                    household_without_pv += device_energy_demand;
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
                         consumption_with_pv += device_energy_demand;
+                        household_with_pv += device_energy_demand;
                         let price:f32 = rand::thread_rng().gen_range(FEED_IN_TARIFF..maximum_price);
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }
@@ -199,12 +201,30 @@ impl<'a> Simulator<'a> {
             {
                 sell_orders.push(household.offer_sell_order(hour));
             }
-            
+
+            if household.get_household_id() == 5
+            {
+                if let Err(err) = csv_handler::write_record_to_csv("household_with_pv.csv",(hour, household_with_pv)) {
+                    println!("{}", err);
+                }
+                household_with_pv = 0.0;
+            }
+            else if household.get_household_id() == 30
+            {
+                if let Err(err) = csv_handler::write_record_to_csv("household_without_pv.csv",(hour, household_without_pv)) {
+                    println!("{}", err);
+                }
+                household_without_pv = 0.0;
+            }
         }
 
-        if let Err(err) = csv_handler::write_total_consumption_to_csv("consumption_without_pv.csv",(hour, consumption_without_pv)) {
+        if let Err(err) = csv_handler::write_record_to_csv("consumption_without_pv.csv",(hour, consumption_without_pv)) {
             println!("{}", err);
         }
+        if let Err(err) = csv_handler::write_record_to_csv("consumption_with_pv.csv",(hour,consumption_with_pv)){
+            println!("{}", err);
+        }
+        
         (consumption_without_pv,consumption_with_pv)
     }
 
