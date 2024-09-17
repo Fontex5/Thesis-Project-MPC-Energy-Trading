@@ -30,18 +30,42 @@ impl MatchedTrade {
 
 pub fn double_auction(buy_orders: &mut Vec<Order>, sell_orders:&mut Vec<Order>) -> Vec<MatchedTrade> {
     let mut matched_trades:Vec<MatchedTrade> = Vec::new();
+
+    if buy_orders.is_empty() || sell_orders.is_empty()
+    {
+        return matched_trades;
+    }
+
     buy_orders.sort_by(|a, b| b.price.partial_cmp(&a.price).unwrap());
     sell_orders.sort_by(|a, b| a.price.partial_cmp(&b.price).unwrap());
 
+    // Equilibrium price must be found based on the breakeven index
+    let mut _equilibrium_price:f32 = 0.0;
+    let mut _index_k:usize = 0;
 
+    if buy_orders.len() > sell_orders.len()
+    {
+        _index_k = sell_orders.len() - 1;
+    }
+    else 
+    {
+        _index_k = buy_orders.len() - 1;  
+    }
+    while buy_orders[_index_k].price < sell_orders[_index_k].price
+    {
+        _index_k -= 1;
+    }
+
+    _equilibrium_price = (buy_orders[_index_k].price + sell_orders[_index_k].price) / 2.0; 
+
+    // Do the trading
     while !buy_orders.is_empty() && !sell_orders.is_empty() {
         let buy_order = buy_orders[0];
         let sell_order = sell_orders[0];
 
         if buy_order.price >= sell_order.price {
-            let trade_price = (buy_order.price + sell_order.price) / 2.0;
             let trade_quantity = buy_order.quantity.min(sell_order.quantity);
-            matched_trades.push(MatchedTrade::new_trade(buy_order.household_id, sell_order.household_id, trade_price, trade_quantity));
+            matched_trades.push(MatchedTrade::new_trade(buy_order.household_id, sell_order.household_id, _equilibrium_price, trade_quantity));
 
             buy_orders[0].quantity -= trade_quantity;
             sell_orders[0].quantity -= trade_quantity;
