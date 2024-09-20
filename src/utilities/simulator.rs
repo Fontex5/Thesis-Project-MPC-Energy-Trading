@@ -17,7 +17,7 @@ impl<'a> Simulator<'a> {
             number_of_houses_in_neighborhood:n_houses,
             list_of_households:households,
             array_of_appliances:[
-                Appliances::HeatPump(Device::set_device(3000, 65)),
+                Appliances::HeatPump(Device::set_device(500, 65)),
                 Appliances::Refrigerator(Device::set_device(150, 15)),
                 Appliances::TV(Device::set_device(120, 45)),
                 Appliances::WashingMachine(Device::set_device(1000, 90)),
@@ -184,12 +184,21 @@ impl<'a> Simulator<'a> {
                 let device_energy_demand = device.get_energy_consumption();
                 if household.whether_to_use_device(&device, hour)
                 {
+                    if household.get_household_id() == 30
+                    {
+                        household_without_pv += device_energy_demand;
+                    }
+
                     consumption_without_pv += device_energy_demand;
-                    household_without_pv += device_energy_demand;
+
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
+                        if household.get_household_id() == 5
+                        {
+                            household_with_pv += device_energy_demand;
+                        }
+
                         consumption_with_pv += device_energy_demand;
-                        household_with_pv += device_energy_demand;
                         let price:f32 = rand::thread_rng().gen_range(FEED_IN_TARIFF..maximum_price);
                         buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }

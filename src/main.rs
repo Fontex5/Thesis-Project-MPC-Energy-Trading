@@ -33,7 +33,7 @@ fn main() {
         let mut sell_orders:Vec<double_auction::Order> = Vec::new();
         let mut buy_orders:Vec<double_auction::Order> = Vec::new();
 
-        let consumed_amounts = simulator.simulate_consumption(hour,30, &mut buy_orders, &mut sell_orders);
+        let consumed_amounts = simulator.simulate_consumption(hour,20, &mut buy_orders, &mut sell_orders);
 
         total_consumed_energy_without_pv += consumed_amounts.0;
         total_cost_without_pv_panels += consumed_amounts.0 * aggregator::get_provider_price(hour);
