@@ -1,8 +1,12 @@
-workspace = {}
 [package]
 name = "zk_double_auction"
-version = "1.0.0"
-edition = "2021"
+version.workspace = true
+description.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [features]
 abi = ["pbc_contract_common/abi", "pbc_contract_codegen/abi", "create_type_spec_derive/abi", "pbc_lib/abi"]
@@ -14,22 +18,13 @@ crate-type = ['rlib', 'cdylib']
 [package.metadata.zk]
 zk-compute-path = "src/zk_compute.rs"
 
-[package.metadata.partisiablockchain]
-cargo-partisia = "4.166.0"
-
-[package.metadata.zkcompiler]
-url = "https://gitlab.com/api/v4/groups/12499775/-/packages/maven/com/partisiablockchain/language/zkcompiler/4.147.0/zkcompiler-4.147.0-jar-with-dependencies.jar"
-
-[package.metadata.abi-cli]
-url = "https://gitlab.com/api/v4/groups/12499775/-/packages/maven/com/partisiablockchain/language/abi-cli/4.189.0/abi-cli-4.189.0-jar-with-dependencies.jar"
-
 [dependencies]
-pbc_contract_common = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-pbc_contract_codegen = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-pbc_traits = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-pbc_lib = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-read_write_rpc_derive = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-read_write_state_derive = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-create_type_spec_derive = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
-pbc_zk = { git = "https://git@gitlab.com/partisiablockchain/language/contract-sdk.git", tag = "v.16.60.0" }
+pbc_contract_common.workspace = true
+pbc_traits.workspace = true
+pbc_lib.workspace = true
+read_write_rpc_derive.workspace = true
+read_write_state_derive.workspace = true
+create_type_spec_derive.workspace = true
+pbc_contract_codegen.workspace = true
+pbc_zk.workspace = true
 
