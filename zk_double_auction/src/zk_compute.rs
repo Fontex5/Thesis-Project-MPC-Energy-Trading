@@ -59,7 +59,7 @@ pub fn double_auction() -> (Sbi16,SecretTradeStruct)
         }
     }
 
-    let mut res = SecretTradeStruct{
+    let mut auction_results = SecretTradeStruct{
         buyer_ids:[Sbi16::from(0);135],
         seller_ids:[Sbi16::from(0);135],
         quantities:[Sbi16::from(0);135],
@@ -104,7 +104,7 @@ pub fn double_auction() -> (Sbi16,SecretTradeStruct)
     
     let mut index_t:usize = 0;
 
-    //Trading between all elements
+    //Make a trade between all participants
     for i in 0usize..3usize
     {
         for j in 0usize..45usize
@@ -122,13 +122,13 @@ pub fn double_auction() -> (Sbi16,SecretTradeStruct)
             sell_orders_quantity[i] = sell_orders_quantity[i] - traded_quantity;
             buy_orders_quantity[j] = buy_orders_quantity[j] - traded_quantity;
 
-            res.buyer_ids[index_t] = buy_orders_ids[j];
-            res.seller_ids[index_t] = sell_orders_ids[i];
-            res.quantities[index_t] = traded_quantity;
+            auction_results.buyer_ids[index_t] = buy_orders_ids[j];
+            auction_results.seller_ids[index_t] = sell_orders_ids[i];
+            auction_results.quantities[index_t] = traded_quantity;
 
             index_t = index_t + 1;
         }
     }
 
-    (ep,res)
+    (ep,auction_results)
 }
