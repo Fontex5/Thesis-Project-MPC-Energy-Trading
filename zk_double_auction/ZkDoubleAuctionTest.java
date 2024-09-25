@@ -50,6 +50,8 @@ public final class ZkDoubleAuctionTest extends JunitContractTest{
         Assertions.assertThat(state).isNotNull();
         Assertions.assertThat(state.equilibriumPrice()).isNull();
         Assertions.assertThat(state.matchedOrders()).isEmpty();
+        Assertions.assertThat(state.prices().size()).isEqualTo(6);
+        Assertions.assertThat(state.prices().get(0)).isEqualTo((short)0);
     }
 
     @ContractTest(previous = "deploy")
@@ -78,10 +80,10 @@ public final class ZkDoubleAuctionTest extends JunitContractTest{
 
         ZkDoubleAuction.ContractState state = ZkDoubleAuction.ContractState.deserialize(blockchain.getContractState(double_auction_contract));
 
-        Assertions.assertThat(state.equilibriumPrice()).isEqualTo(3);
+        Assertions.assertThat(state.equilibriumPrice()).isEqualTo((short)3);
         Assertions.assertThat(state.matchedOrders().size()).isEqualTo(10);
-        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.TradeResult(3,1,0));
-        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.TradeResult(7,2,1));
+        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)3,(short)1,(short)0));
+        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)0,(short)1,(short)0));
     }
 
     @ContractTest(previous = "deploy")
@@ -110,10 +112,10 @@ public final class ZkDoubleAuctionTest extends JunitContractTest{
 
         ZkDoubleAuction.ContractState state = ZkDoubleAuction.ContractState.deserialize(blockchain.getContractState(double_auction_contract));
 
-        Assertions.assertThat(state.equilibriumPrice()).isEqualTo(0);
+        Assertions.assertThat(state.equilibriumPrice()).isEqualTo((short)0);
         Assertions.assertThat(state.matchedOrders().size()).isEqualTo(10);
-        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.TradeResult(3,1,3));
-        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.TradeResult(7,2,2));
+        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)3,(short)1,(short)3));
+        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)0,(short)1,(short)0));
     }
 
     @ContractTest(previous = "deploy")
@@ -142,10 +144,81 @@ public final class ZkDoubleAuctionTest extends JunitContractTest{
 
         ZkDoubleAuction.ContractState state = ZkDoubleAuction.ContractState.deserialize(blockchain.getContractState(double_auction_contract));
 
-        Assertions.assertThat(state.equilibriumPrice()).isEqualTo(5);
+        Assertions.assertThat(state.equilibriumPrice()).isEqualTo((short)5);
         Assertions.assertThat(state.matchedOrders().size()).isEqualTo(10);
-        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.TradeResult(3,1,3));
-        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.TradeResult(7,2,1));
+        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)3,(short)1,(short)3));
+        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)0,(short)1,(short)0));
+    }
+
+    @ContractTest(previous = "deploy")
+    void updatePrices()
+    {
+        byte[] updatePrices = ZkDoubleAuction.updatePrices((short)1,(short)65);
+
+        blockchain.sendAction(household1, double_auction_contract, updatePrices);
+
+        ZkDoubleAuction.ContractState state = ZkDoubleAuction.ContractState.deserialize(blockchain.getContractState(double_auction_contract));
+
+        Assertions.assertThat(state.prices().get(0)).isEqualTo((short)1);
+        Assertions.assertThat(state.prices().get(1)).isEqualTo((short)16);
+    }
+
+    @ContractTest(previous = "equilibriumPriceInRight")
+    void resetContract()
+    {
+        byte[] reset = ZkDoubleAuction.resetContract();
+
+        blockchain.sendAction(household1, double_auction_contract, reset);
+
+        ZkDoubleAuction.ContractState state = ZkDoubleAuction.ContractState.deserialize(blockchain.getContractState(double_auction_contract));
+
+        Assertions.assertThat(state.equilibriumPrice()).isNull();
+        Assertions.assertThat(state.matchedOrders()).isEmpty();
+        Assertions.assertThat(state.prices().size()).isEqualTo(6);
+        Assertions.assertThat(state.prices().get(0)).isEqualTo((short)0);
+    }
+
+    @ContractTest(previous = "deploy")
+    void resetContractFailing()
+    {
+        byte[] reset = ZkDoubleAuction.resetContract();
+
+        Assertions.assertThatThrownBy(
+            () -> blockchain.sendAction(household1, double_auction_contract, reset))
+        .isInstanceOf(ActionFailureException.class)
+        .hasMessageContaining("Cannot reset the contract before an auction!");
+    }
+
+    @ContractTest(previous = "resetContract")
+    void equilibriumPriceInMiddle2() {
+
+        DoubleAuctionOrder sell_order1 = new DoubleAuctionOrder(1,0,0,0,4,0,0);
+        DoubleAuctionOrder sell_order2 = new DoubleAuctionOrder(2,0,0,0,5,2,0);
+
+        DoubleAuctionOrder buy_order1 = new DoubleAuctionOrder(3,0,0,3,0,0,0);
+        DoubleAuctionOrder buy_order2 = new DoubleAuctionOrder(4,0,0,3,2,0,0);
+        DoubleAuctionOrder buy_order3 = new DoubleAuctionOrder(5,5,0,0,0,0,0);
+        DoubleAuctionOrder buy_order4 = new DoubleAuctionOrder(6,0,0,0,4,0,0);
+        DoubleAuctionOrder buy_order5 = new DoubleAuctionOrder(7,0,2,0,1,1,0);
+
+        blockchain.sendSecretInput(double_auction_contract, household2, createSecretInput(sell_order1), secretInputSellingRpc()); 
+        blockchain.sendSecretInput(double_auction_contract, household3, createSecretInput(sell_order2), secretInputSellingRpc());
+        blockchain.sendSecretInput(double_auction_contract, household4, createSecretInput(buy_order1), secretInputBuyingRpc());
+        blockchain.sendSecretInput(double_auction_contract, household4, createSecretInput(buy_order2), secretInputBuyingRpc());
+        blockchain.sendSecretInput(double_auction_contract, household4, createSecretInput(buy_order3), secretInputBuyingRpc());
+        blockchain.sendSecretInput(double_auction_contract, household4, createSecretInput(buy_order4), secretInputBuyingRpc());
+        blockchain.sendSecretInput(double_auction_contract, household4, createSecretInput(buy_order5), secretInputBuyingRpc());
+
+        byte[] findEqPrice = ZkDoubleAuction.holdDoubleAuction();
+
+        blockchain.sendAction(household1, double_auction_contract, findEqPrice);
+
+        ZkDoubleAuction.ContractState state = ZkDoubleAuction.ContractState.deserialize(blockchain.getContractState(double_auction_contract));
+
+        Assertions.assertThat(state.equilibriumPrice()).isEqualTo((short)3);
+        Assertions.assertThat(state.matchedOrders().size()).isEqualTo(10);
+        Assertions.assertThat(state.matchedOrders().get(0)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)3,(short)1,(short)0));
+        Assertions.assertThat(state.matchedOrders().get(9)).isEqualTo(new ZkDoubleAuction.SingleTradeResult((short)0,(short)1,(short)0));
     }
 
     private record DoubleAuctionOrder(int houseId, int price, int price2, int price3, int price4, int price5, int price6){}
@@ -153,13 +226,13 @@ public final class ZkDoubleAuctionTest extends JunitContractTest{
     private CompactBitArray createSecretInput(DoubleAuctionOrder order) {
         return BitOutput.serializeBits(
             bitOutput -> {
-            bitOutput.writeUnsignedInt(order.houseId, 32);
-            bitOutput.writeUnsignedInt(order.price, 32);
-            bitOutput.writeUnsignedInt(order.price2, 32);
-            bitOutput.writeUnsignedInt(order.price3, 32);
-            bitOutput.writeUnsignedInt(order.price4, 32);
-            bitOutput.writeUnsignedInt(order.price5, 32);
-            bitOutput.writeUnsignedInt(order.price6, 32);
+            bitOutput.writeUnsignedInt(order.houseId, 16);
+            bitOutput.writeUnsignedInt(order.price, 16);
+            bitOutput.writeUnsignedInt(order.price2, 16);
+            bitOutput.writeUnsignedInt(order.price3, 16);
+            bitOutput.writeUnsignedInt(order.price4, 16);
+            bitOutput.writeUnsignedInt(order.price5, 16);
+            bitOutput.writeUnsignedInt(order.price6, 16);
         });
     }
 

@@ -32,23 +32,28 @@ enum SecretVarType {
 
 #[derive(ReadWriteState, CreateTypeSpec, Clone)]
 pub struct TradeResult {
-    pub buyer_id: i32,
-    pub seller_id: i32,
-    pub quantity: i32,
+    pub buyer_ids: [i16;135],
+    pub seller_ids: [i16;135],
+    pub quantities: [i16;135],
 }
 
 #[derive(ReadWriteState, CreateTypeSpec, Clone)]
-pub struct ListOfTrades {
-    pub trade_1: TradeResult,
-    pub trade_2: TradeResult,
-    pub trade_3: TradeResult,
-    pub trade_4: TradeResult,
-    pub trade_5: TradeResult,
-    pub trade_6: TradeResult,
-    pub trade_7: TradeResult,
-    pub trade_8: TradeResult,
-    pub trade_9: TradeResult,
-    pub trade_10: TradeResult, 
+pub struct SingleTradeResult {
+    pub buyer_id: i16,
+    pub seller_id: i16,
+    pub quantity: i16,
+}
+
+impl SingleTradeResult
+{
+    pub fn new_trade (buyer_id:i16, seller_id:i16, quantity:i16) -> Self
+    {
+        Self{
+            buyer_id,
+            seller_id,
+            quantity
+        }
+    }
 }
 
 /// State of the contract.
@@ -57,18 +62,75 @@ struct ContractState {
 
     pub auction_holder: Address,
 
-    pub equilibrium_price: Option<i32>,
+    pub prices:[i16;6],
 
-    pub matched_orders:Vec<TradeResult>,
+    pub equilibrium_price: Option<i16>,
+
+    pub matched_orders:Vec<SingleTradeResult>,
 }
 
 #[init(zk = true)]
 fn initialize(ctx: ContractContext, zk_state: ZkState<SecretVarMetadata>) -> ContractState {
     ContractState {
         auction_holder: ctx.sender,
+        prices:[0;6],
         equilibrium_price: None,
         matched_orders: Vec::new(),
     }
+}
+
+/// Resets contract, deleting all received input and secret variables.
+#[action(shortname = 0x00, zk = true)]
+fn reset_contract(
+    ctx: ContractContext,
+    state: ContractState,
+    zk_state: ZkState<SecretVarMetadata>,
+) -> (ContractState, Vec<EventGroup>, Vec<ZkStateChange>) {
+    assert_eq!(state.auction_holder,ctx.sender,"Only the auction holder can reset!");
+    assert_ne!(state.equilibrium_price.is_none(),true,"Cannot reset the contract before an auction!");
+
+    let new_state = ContractState {
+        auction_holder: ctx.sender,
+        prices:[0;6],
+        equilibrium_price: None,
+        matched_orders: Vec::new(),
+    };
+
+    let all_variables = zk_state
+        .secret_variables
+        .iter()
+        .chain(zk_state.pending_inputs.iter())
+        .map(|(v, _)| v)
+        .collect();
+
+    (
+        new_state,
+        vec![],
+        vec![ZkStateChange::DeleteVariables {
+            variables_to_delete: all_variables,
+        }],
+    )
+}
+
+#[action(shortname = 0x47, zk = true)]
+fn update_prices (
+    ctx: ContractContext, 
+    mut state: ContractState,
+    zk_state: ZkState<SecretVarMetadata>, 
+    fit: i16,
+    electricity_price_at_t:i16
+) -> (ContractState, Vec<EventGroup>, Vec<ZkStateChange>)
+{
+    assert_eq!(
+        state.auction_holder,
+        ctx.sender,"Only the auction holder can update the prices!");
+
+    let price_step:i16 = ((electricity_price_at_t - fit) / 4) - 1;
+    for i in 0usize..6usize
+    {
+        state.prices[i] = fit + (price_step * i as i16);
+    }
+    (state,vec![],vec![])
 }
 
 #[zk_on_secret_input(shortname = 0x40, secret_type = "SecretOrderStruct")]
@@ -123,6 +185,7 @@ fn hold_double_auction(
                 &SecretVarMetadata{order_type: SecretVarType::Matched,},
                 &SecretVarMetadata{order_type: SecretVarType::Matched,}
             ],
+            //&SecretVarMetadata{order_type: SecretVarType::Matched,},
         )],
     )
 }
@@ -158,20 +221,18 @@ fn save_opened_variable(
 
     assert!(state.matched_orders.is_empty(), "Matched orders is not empty before auction!");
 
-        let eq_price:i32 = read_variable(&zk_state,opened_variables.first());
+        let eq_price:i16 = read_variable(&zk_state,opened_variables.first());
         state.equilibrium_price = Some(eq_price); 
 
-        let list_of_trades:ListOfTrades = read_variable(&zk_state,opened_variables.get(1));
-        state.matched_orders.push(list_of_trades.trade_1);
-        state.matched_orders.push(list_of_trades.trade_2);
-        state.matched_orders.push(list_of_trades.trade_3);
-        state.matched_orders.push(list_of_trades.trade_4);
-        state.matched_orders.push(list_of_trades.trade_5);
-        state.matched_orders.push(list_of_trades.trade_6);
-        state.matched_orders.push(list_of_trades.trade_7);
-        state.matched_orders.push(list_of_trades.trade_8);
-        state.matched_orders.push(list_of_trades.trade_9);
-        state.matched_orders.push(list_of_trades.trade_10);
+        let list_of_trades:TradeResult = read_variable(&zk_state,opened_variables.get(1));
+        for i in 0usize..10usize
+        {
+            state.matched_orders.push(SingleTradeResult::new_trade(
+                list_of_trades.buyer_ids[i],
+                list_of_trades.seller_ids[i],
+                list_of_trades.quantities[i],
+            ));
+        }
 
         assert!(state.matched_orders.len() == 10, "Matched orders does not have 10 items!");
 
