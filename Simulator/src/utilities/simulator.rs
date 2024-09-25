@@ -153,7 +153,7 @@ impl<'a> Simulator<'a> {
     {
         let mut consumption_without_pv:f32 = 0.0;
         let mut consumption_with_pv:f32 = 0.0;
-        let mut household_with_pv:f32 = 0.0;
+        let mut buy_order_quantity:f32 = 0.0;
         let mut household_without_pv:f32 = 0.0;
         let number_of_houses_with_pv = ((self.number_of_houses_in_neighborhood as f32) * (percen_houses_with_pv as f32 / 100.0)).ceil() as i32;
         let maximum_price = aggregator::get_provider_price(hour);
@@ -174,11 +174,15 @@ impl<'a> Simulator<'a> {
                         //household cannot save the generated energy and cause imbalance
                         //in the grid, therefore, the generated energy is take for free
                         sell_orders.push(Order::new_order(household.get_household_id(), 0.0, household.get_generated_energy()));
+                        println!("Household {} is punished!",household.get_household_id());
                         consumption_with_pv -= household.get_generated_energy();
                     }
                 }
                 i += 1;
             }
+
+            buy_order_quantity = 0.0;
+
             for device in &self.array_of_appliances
             {
                 let device_energy_demand = device.get_energy_consumption();
@@ -193,16 +197,17 @@ impl<'a> Simulator<'a> {
 
                     if !household.is_demanded_energy_suppliable(device_energy_demand)
                     {
-                        if household.get_household_id() == 5
-                        {
-                            household_with_pv += device_energy_demand;
-                        }
 
+                        buy_order_quantity += device_energy_demand;
                         consumption_with_pv += device_energy_demand;
-                        let price:f32 = rand::thread_rng().gen_range(FEED_IN_TARIFF..maximum_price);
-                        buy_orders.push(Order::new_order(household.get_household_id(), price , device_energy_demand));
                     }
                 }
+            }
+
+            if buy_order_quantity != 0.0
+            {
+                let price:f32 = rand::thread_rng().gen_range(FEED_IN_TARIFF..maximum_price);
+                buy_orders.push(Order::new_order(household.get_household_id(), price , buy_order_quantity));
             }
 
             //Check if household would like to sell energy
@@ -213,10 +218,9 @@ impl<'a> Simulator<'a> {
 
             if household.get_household_id() == 5
             {
-                if let Err(err) = csv_handler::write_record_to_csv("household_with_pv.csv",(hour, household_with_pv)) {
+                if let Err(err) = csv_handler::write_record_to_csv("household_with_pv.csv",(hour, buy_order_quantity)) {
                     println!("{}", err);
                 }
-                household_with_pv = 0.0;
             }
             else if household.get_household_id() == 30
             {
